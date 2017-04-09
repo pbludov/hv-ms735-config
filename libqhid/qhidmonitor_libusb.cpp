@@ -30,7 +30,7 @@ int LIBUSB_CALL QHIDMonitorPrivate::callback(
     {
         QString str;
         QByteArray path(16, 0);
-#if defined(LIBUSB_API_VERSION) && LIBUSB_API_VERSION >= ((1 << 24) | (0 << 16) | 16)
+#if defined(LIBUSB_API_VERSION) && LIBUSB_API_VERSION >= 0x01000102
         Q_UNUSED(ctx);
         int pathLen = libusb_get_port_numbers(device, (uint8_t*)path.data(), path.length());
 #else
@@ -65,7 +65,7 @@ QHIDMonitorPrivate::QHIDMonitorPrivate(QHIDMonitor *q_ptr, int vendorId, int dev
     }
 
     auto events = (libusb_hotplug_event)(LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED | LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT);
-    rc = libusb_hotplug_register_callback(ctx, events, LIBUSB_HOTPLUG_NO_FLAGS, vendorId, deviceId,
+    rc = libusb_hotplug_register_callback(ctx, events, (libusb_hotplug_flag)0, vendorId, deviceId,
         LIBUSB_HOTPLUG_MATCH_ANY, QHIDMonitorPrivate::callback, this, &handle);
 
     if (LIBUSB_SUCCESS != rc)

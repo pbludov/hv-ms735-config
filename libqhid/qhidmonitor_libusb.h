@@ -36,7 +36,7 @@ protected:
     virtual void timerEvent(QTimerEvent *evt);
 
 private:
-    static int LIBUSB_CALL callback(libusb_context *ctx, libusb_device *device, libusb_hotplug_event event, void *userData);
+    static int LIBUSB_CALL callback(libusb_context *, libusb_device *device, libusb_hotplug_event event, void *userData);
 
     int timerId;
     libusb_context *ctx;

@@ -30,6 +30,11 @@
 
 Q_LOGGING_CATEGORY(UsbIo, "usb")
 
+#ifndef qCInfo
+// QT 5.2 does not have qCInfo
+#define qCInfo qCWarning
+#endif
+
 static char crc(const QByteArray data)
 {
     char sum = -1;

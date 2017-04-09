@@ -22,7 +22,7 @@
 #include <QDebug>
 
 int LIBUSB_CALL QHIDMonitorPrivate::callback(
-    libusb_context *ctx, libusb_device *device, libusb_hotplug_event event, void *userData)
+    libusb_context *, libusb_device *device, libusb_hotplug_event event, void *userData)
 {
     auto q = reinterpret_cast<QHIDMonitorPrivate *>(userData)->q_func();
 
@@ -30,12 +30,7 @@ int LIBUSB_CALL QHIDMonitorPrivate::callback(
     {
         QString str;
         QByteArray path(16, 0);
-#if defined(LIBUSB_API_VERSION) && LIBUSB_API_VERSION >= 0x01000102
-        Q_UNUSED(ctx);
         int pathLen = libusb_get_port_numbers(device, (uint8_t*)path.data(), path.length());
-#else
-        int pathLen = libusb_get_port_path(ctx, device, (uint8_t*)path.data(), path.length());
-#endif
         for (int i = 0; i < pathLen; ++i)
         {
             str.append(QString::number(path.at(i))).append(":");

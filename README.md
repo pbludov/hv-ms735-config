@@ -16,7 +16,7 @@ or if you need some extra features that the official software does not provide.
 
 *Absolutely no warranty*. Perhaps (and in some cases definitely),
 the device will be broken. To restore the device from the "brick" state
-follow the [instruction](doc/unbrick.md).
+follow the [instructions](doc/unbrick.md).
 
 ## Installation from sources
 

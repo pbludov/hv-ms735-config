@@ -20,7 +20,7 @@ Start the program with --unbrick command line parameter:
     ./hv-ms735-config --unbrick
 
 then try to plug'n'unplug the device. The device will be turned off
-and reappears as 04d9:8022. Then use the irmware update utility.
+and reappears as 04d9:8022. Then use the firmware update utility.
 
 ## Hard method
 

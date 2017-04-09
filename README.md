@@ -28,6 +28,11 @@ dependency libraries and header files, such as libusb-1.0, hidapi-libusb.
 Furthermore you need, of course, a C++ compiler and the Make tool.
 The GNU versions of these tools are recommended, but not required.
 
+### Making hv-ms735-config with gcc
+
+    qmake
+    make
+
 ### Making hv-ms735-config with mingw
 
     qmake
@@ -49,5 +54,5 @@ as published by the Free Software Foundation; either version 2.1 of the License,
 or (at your option) any later version.  A copy of this license
 can be found in the file COPYING included with the source code of this program.
 
-| 2017 Pavel Bludov <pbludov@gmail.com>
+&copy; 2017 Pavel Bludov <pbludov@gmail.com>
 

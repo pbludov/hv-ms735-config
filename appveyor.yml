@@ -24,8 +24,8 @@ build_script:
 - windeployqt.exe --no-svg --no-angle --no-opengl-sw --no-system-d3d-compiler --no-translations --libdir qtredist --plugindir qtredist %CONFIGURATION%\hv-ms735-config.exe
 - heat dir qtredist -cg CG_QtRedist -ag -srd -sfrag -dr INSTALLDIR -out qtredist.wxs
 - candle -dConfiguration=%CONFIGURATION% -dLibDir=qtredist hv-ms735-config.wxs qtredist.wxs
-- light hv-ms735-config.wixobj qtredist.wixobj -out %CONFIGURATION%\hv-ms735-config.msi
+- light hv-ms735-config.wixobj qtredist.wixobj -out hv-ms735-config.msi
 
 artifacts:
-- path: *\hv-ms735-config.msi
+- path: hv-ms735-config.msi
   name: windows-installer

@@ -1,7 +1,7 @@
 Summary: hv-ms735-config
 Name: hv-ms735-config
 Provides: hv-ms735-config
-Version: 1.2
+Version: 1.0
 Release: 1%{?dist}
 License: LGPL-2.1+
 Source: %{name}.tar.gz
@@ -45,4 +45,4 @@ make install INSTALL_ROOT="%buildroot";
 %changelog
 * Sun Apr 9 2017 Pavel Bludov <pbludov@gmail.com>
 + Version 1.0
-- Initial comit
+- Initial commit

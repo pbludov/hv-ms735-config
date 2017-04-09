@@ -32,42 +32,28 @@ inline QString tr(const char *str)
 
 int testKeys(MS735& mice)
 {
-    const MS735::ButtonIndex buttons[] =
-    {
-        MS735::SideButton1,
-        MS735::SideButton2,
-        MS735::SideButton3,
-        MS735::SideButton4,
-        MS735::SideButton5,
-        MS735::SideButton6,
-        MS735::SideButton7,
-        MS735::SideButton8,
-        MS735::SideButton9,
-        MS735::SideButton10,
-        MS735::SideButton11,
-        MS735::SideButton12,
-    };
-
     QByteArray macro;
     macro.append("\x00\x01", 2);
 
-    int macroIndex = MS735::MinMacroNum;
+    int macroIndex = 0;
     for (int i = 4; i < MS735::MouseLeftButton; ++i)
     {
         macro.append(5).append(i).append(0x85).append(i);
 
         if ((i % 30) == 0)
         {
-            mice.setButton(buttons[macroIndex - MS735::MinMacroNum], (macroIndex << 16) | 9);
-            mice.setMacro(macroIndex++, macro.append("\x00\x00", 2));
+            mice.setButton(MS735::ButtonIndex(MS735::SideButton5 + macroIndex),
+                           ((macroIndex + MS735::MinMacroNum) << 16) | 9);
+            mice.setMacro(++macroIndex, macro.append("\x00\x00", 2));
             macro.resize(0);
             macro.append("\x00\x01", 2);
         }
     }
 
     // Write last macro
-    mice.setButton(buttons[macroIndex - MS735::MinMacroNum], (macroIndex << 16) | 9);
-    mice.setMacro(macroIndex, macro.append("\x00\x00", 2));
+    mice.setButton(MS735::ButtonIndex(MS735::SideButton5 + macroIndex),
+                   ((macroIndex + MS735::MinMacroNum) << 16) | 9);
+    mice.setMacro(++macroIndex, macro.append("\x00\x00", 2));
     return mice.save() ? 0 : 1;
 }
 
@@ -83,19 +69,19 @@ int main(int argc, char *argv[])
     parser.addHelpOption();
     parser.addVersionOption();
 
-    QCommandLineOption unbrickOption("unbrick", tr("Switch to firmware upgrade mode"));
+    QCommandLineOption unbrickOption("unbrick", tr("Switch the device to firmware upgrade mode."));
     parser.addOption(unbrickOption);
-    QCommandLineOption profileOption(QStringList() << "p" << "profile", tr("Get active profile"));
+    QCommandLineOption profileOption(QStringList() << "p" << "profile", tr("Get the active profile."));
     parser.addOption(profileOption);
-    QCommandLineOption setProfileOption(QStringList() << "P" << "set-profile", tr("Select active <profile>."), tr("profile"));
+    QCommandLineOption setProfileOption(QStringList() << "P" << "set-profile", tr("Select the active <profile>."), tr("profile"));
     parser.addOption(setProfileOption);
-    QCommandLineOption backupOption(QStringList() << "b" << "backup", tr("Backup NAND data to <file>."), tr("file"));
+    QCommandLineOption backupOption(QStringList() << "b" << "backup", tr("Backup NAND data to a <file>."), tr("file"));
     parser.addOption(backupOption);
-    QCommandLineOption restoreOption(QStringList() << "r" << "restore", tr("Restore NAND data from <file>."), tr("file"));
+    QCommandLineOption restoreOption(QStringList() << "r" << "restore", tr("Restore NAND data from a <file>."), tr("file"));
     parser.addOption(restoreOption);
     QCommandLineOption verboseOption(QStringList() << "verbose", tr("Verbose output."));
     parser.addOption(verboseOption);
-    QCommandLineOption testKeysOption(QStringList() << "test-keys", tr("Set up key test macros."));
+    QCommandLineOption testKeysOption(QStringList() << "test-keys", tr("Set up test macros and bind them to the side buttons 5-12."));
     parser.addOption(testKeysOption);
 
     // Process the actual command line arguments given by the user.

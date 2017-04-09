@@ -6,7 +6,7 @@
 ## Introduction
 HAVIT Magic Eagle mouse configuration utility.
 
-This program is **not** an official utility from the product vendor.
+This program **is not** an official utility from the product vendor.
 
 It is strongly recommended to use the software from the official website:
 [http://www.havit.hk/downloads/]
@@ -42,6 +42,23 @@ The GNU versions of these tools are recommended, but not required.
 
     qmake
     nmake
+
+### Building the DEB package (Debian/Ubuntu/Mint)
+    
+    dpkg-buildpackage -us -uc -I.git -rfakeroot
+
+### Building the RPM package (Fedora/SUSE/CentOS)
+    
+    tar czf /tmp/hv-ms735-config.tar.gz * --exclude=.git && rpmbuild -ta /tmp/hv-ms735-config.tar.gz
+
+### Building the MSI package (Windows)
+    
+    set CONFIGURATION=release
+    windeployqt.exe --no-svg --no-angle --no-opengl-sw --no-system-d3d-compiler --no-translations --libdir qtredist --plugindir qtredist %CONFIGURATION%\hv-ms735-config.exe
+    heat dir qtredist -cg CG_QtRedist -var var.QtRedistDir -ag -srd -sfrag -dr INSTALLDIR -out qtredist.wxs
+    candle -dConfiguration=%CONFIGURATION% -dQtRedistDir=qtredist hv-ms735-config.wxs qtredist.wxs
+    light hv-ms735-config.wixobj qtredist.wixobj -out hv-ms735-config.msi
+
 
 ## Galery
 ![side buttons](doc/sidebuttons.png)

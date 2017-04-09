@@ -22,6 +22,8 @@
 #include <QObject>
 #include <QLoggingCategory>
 
+Q_DECLARE_LOGGING_CATEGORY(UsbIo)
+
 class MS735 : public QObject
 {
     Q_PROPERTY(int mainColor READ mainColor WRITE setFixedColor)
@@ -163,8 +165,6 @@ public:
 
     explicit MS735(QObject *parent = 0);
     ~MS735();
-
-    Q_LOGGING_CATEGORY(UsbIo, "usb")
 
     int profile();
     void setProfile(int value);

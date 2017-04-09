@@ -28,6 +28,8 @@
 
 #define PAGE_SIZE 128
 
+Q_LOGGING_CATEGORY(UsbIo, "usb")
+
 static char crc(const QByteArray data)
 {
     char sum = -1;

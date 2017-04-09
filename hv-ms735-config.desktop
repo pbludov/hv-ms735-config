@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=HV MS735 configuration utility
+Comment=HAVIT Magic Eagle mouse unofficial configuration utility.
+Exec=hv-ms735-config %U
+Icon=hv-ms735-config
+StartupNotify=true
+Terminal=false
+Type=Application
+

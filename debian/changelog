@@ -1,0 +1,5 @@
+hv-ms735-config (1.0.0-1xenial1) xenial; urgency=medium
+
+  * Initial version.
+
+ -- Pavel Bludov <pbludov@gmail.com>  Sun, 9 Apr 2017 17:53:25 +0800

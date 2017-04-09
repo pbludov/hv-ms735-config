@@ -1,0 +1,13 @@
+Source: hv-ms735-config
+Section: contrib/misc
+Priority: optional
+Maintainer: Pavel Bludov <pbludov@gmail.com>
+Standards-Version: 3.2.1
+Build-Depends: debhelper, qt5-default, libqt5widgets5, libhidapi-dev, libusb-1.0-0-dev
+
+Package: hv-ms735-config
+Architecture: i386 amd64
+Pre-Depends: debconf (>= 1.1) | debconf-2.0
+Depends: ${shlibs:Depends}
+Description: HAVIT Magic Eagle mouse unofficial configuration utility.
+  Allows you to configure the buttons and profiles of your device.

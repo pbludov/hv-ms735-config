@@ -1,7 +1,7 @@
 # hv-ms735-config
 
 [![Build Status](https://api.travis-ci.org/pbludov/hv-ms735-config.svg?branch=master)](https://travis-ci.org/pbludov/hv-ms735-config)
-[![Build status](https://ci.appveyor.com/api/projects/status/_TODO_?svg=true)](https://ci.appveyor.com/project/pbludov/hv-ms735-config)
+[![Build status](https://ci.appveyor.com/api/projects/status/c9xnl0k4vdi79mor?svg=true)](https://ci.appveyor.com/project/pbludov/hv-ms735-config)
 
 ## Introduction
 HAVIT Magic Eagle mouse configuration utility.
@@ -39,9 +39,9 @@ The GNU versions of these tools are recommended, but not required.
     nmake
 
 ## Galery
-![side buttons](doc/sidebuttons.jpg)
-![macros](doc/macros.jpg)
-![profiles](doc/profiles.jpg)
+![side buttons](doc/sidebuttons.png)
+![macros](doc/macros.png)
+![profiles](doc/profiles.png)
 
 ### License
 hv-ms735-config is distributed under the terms of the GNU General Public License

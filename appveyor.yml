@@ -27,5 +27,5 @@ build_script:
 - light hv-ms735-config.wixobj qtredist.wixobj -out %CONFIGURATION%\hv-ms735-config.msi
 
 artifacts:
-- path: %CONFIGURATION%\hv-ms735-config.msi
+- path: *\hv-ms735-config.msi
   name: windows-installer

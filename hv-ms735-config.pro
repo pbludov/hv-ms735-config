@@ -75,6 +75,7 @@ FORMS    += ui/mainwindow.ui \
 RESOURCES += \
     res/hv-ms735-config.qrc
 
+ICON = res/hv-ms735-config.icns
 RC_ICONS = res/hv-ms735-config.ico
 QMAKE_TARGET_COPYRIGHT = Pavel Bludov <pbludov@gmail.com>
 QMAKE_TARGET_DESCRIPTION = HAVIT Magic Eagle mouse configuration utility.

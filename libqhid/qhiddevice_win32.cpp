@@ -26,7 +26,7 @@ extern "C" {
 #include <Hidsdi.h>
 }
 
-QHIDDevicePrivate::QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int deviceId, int interfaceNumber)
+QHIDDevicePrivate::QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int deviceId, int interfaceNumber, int)
     : hDevice(INVALID_HANDLE_VALUE)
     , q_ptr(q_ptr)
 {

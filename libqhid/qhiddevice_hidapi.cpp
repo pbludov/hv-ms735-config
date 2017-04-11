@@ -21,13 +21,23 @@
 
 #include <QDebug>
 
+#include <errno.h>
+
 #ifdef WITH_LIBUSB_1_0
 #include <libusb.h>
 
 static void getInOutSize(int vendorId, int deviceId, int interfaceNumber, int *inBufferLength, int *outBufferLength)
 {
+    libusb_context *ctx = nullptr;
+    int rc = libusb_init(&ctx);
+    if (LIBUSB_SUCCESS != rc)
+    {
+        qWarning() << "Error creating a context" << libusb_error_name(rc);
+        return;
+    }
+
     libusb_device **devs;
-    auto count = libusb_get_device_list(nullptr, &devs);
+    auto count = libusb_get_device_list(ctx, &devs);
 
     for (ssize_t i = 0; i < count; ++i)
     {
@@ -74,10 +84,11 @@ static void getInOutSize(int vendorId, int deviceId, int interfaceNumber, int *i
     }
 
     libusb_free_device_list(devs, 1);
+    libusb_exit(ctx);
 }
 #endif
 
-QHIDDevicePrivate::QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int deviceId, int interfaceNumber)
+QHIDDevicePrivate::QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int deviceId, int interfaceNumber, int usagePage)
     : device(nullptr)
     , q_ptr(q_ptr)
 {
@@ -94,14 +105,16 @@ QHIDDevicePrivate::QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int device
 
     for (auto dev = devices; dev != nullptr; dev = dev->next)
     {
-        if (dev->interface_number == interfaceNumber)
+        if (dev->interface_number == interfaceNumber || dev->usage_page == usagePage)
         {
             device = hid_open_path(dev->path);
 
-            if (device == nullptr)
+            if (device != nullptr)
             {
-                qWarning() << "Failed to open" << dev->path << "error" << errno;
+                break;
             }
+
+            qWarning() << "Failed to open" << dev->path << "error" << errno;
         }
     }
 
@@ -109,7 +122,7 @@ QHIDDevicePrivate::QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int device
 
     if (device == nullptr)
     {
-        qWarning() << "No such device" << vendorId << deviceId << interfaceNumber;
+        qWarning() << "No such device" << vendorId << deviceId << interfaceNumber << usagePage;
     }
 }
 

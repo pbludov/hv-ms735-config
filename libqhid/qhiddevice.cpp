@@ -17,7 +17,7 @@
  */
 
 #include "qhiddevice.h"
-#if defined(WITH_HIDAPI_LIBUSB) || defined(WITH_HIDAPI_HIDRAW)
+#if defined(WITH_HIDAPI) || defined(WITH_HIDAPI_LIBUSB) || defined(WITH_HIDAPI_HIDRAW)
 #include "qhiddevice_hidapi.h"
 #elif defined(Q_OS_WIN32)
 #include "qhiddevice_win32.h"
@@ -26,12 +26,12 @@
 #include <QDebug>
 #include <QThread>
 
-QHIDDevice::QHIDDevice(int vendorId, int deviceId, int interfaceNumber, QObject *parent)
+QHIDDevice::QHIDDevice(int vendorId, int deviceId, int interfaceNumber, int usagePage, QObject *parent)
     : QObject(parent)
     , inputBufferLength(64)
     , outputBufferLength(64)
     , writeDelayValue(20000UL)
-    , d_ptr(new QHIDDevicePrivate(this, vendorId, deviceId, interfaceNumber))
+    , d_ptr(new QHIDDevicePrivate(this, vendorId, deviceId, interfaceNumber, usagePage))
 {
 }
 
@@ -42,11 +42,11 @@ QHIDDevice::~QHIDDevice()
     d_ptr = nullptr;
 }
 
-bool QHIDDevice::open(int vendorId, int deviceId, int interfaceNumber)
+bool QHIDDevice::open(int vendorId, int deviceId, int interfaceNumber, int usagePage)
 {
     d_ptr->q_ptr = nullptr;
     delete d_ptr;
-    d_ptr = new QHIDDevicePrivate(this, vendorId, deviceId, interfaceNumber);
+    d_ptr = new QHIDDevicePrivate(this, vendorId, deviceId, interfaceNumber, usagePage);
     return d_ptr->isValid();
 }
 

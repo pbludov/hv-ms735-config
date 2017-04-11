@@ -22,9 +22,13 @@
 
 #include <QRgb>
 
-#define VENDOR    0x04D9
-#define PRODUCT   0xA100
-#define INTERFACE 2
+#define VENDOR     0x04D9
+#define PRODUCT    0xA100
+
+// Linux backend does not support usage page, but supports interface
+#define INTERFACE  2
+// MacOS X backend does not support interface, but supports usage page
+#define USAGE_PAGE 0xFF00
 
 #define PAGE_SIZE 128
 
@@ -49,7 +53,7 @@ static char crc(const QByteArray data)
 
 MS735::MS735(QObject *parent)
     : QObject(parent)
-    , device(new QHIDDevice(VENDOR, PRODUCT, INTERFACE, this))
+    , device(new QHIDDevice(VENDOR, PRODUCT, INTERFACE, USAGE_PAGE, this))
     , monitor(new QHIDMonitor(VENDOR, PRODUCT, this))
 {
     connect(monitor, SIGNAL(deviceArrival(QString)), this, SLOT(deviceArrival(QString)));
@@ -66,12 +70,13 @@ MS735::~MS735()
 
 void MS735::deviceArrival(const QString &path)
 {
-    qCInfo(UsbIo) << "Detected device at" << path;
-    connectChanged(device->open(VENDOR, PRODUCT, INTERFACE));
+    qCInfo(UsbIo) << "Detected device arrival at" << path;
+    connectChanged(device->open(VENDOR, PRODUCT, INTERFACE, USAGE_PAGE));
 }
 
 void MS735::deviceRemove()
 {
+    qCInfo(UsbIo) << "Detected device removal";
     connectChanged(false);
 }
 
@@ -91,15 +96,22 @@ QByteArray MS735::report(Command b1, char b2, char b3, char b4, char b5, char b6
 
     qCDebug(UsbIo) << "send" << data.toHex();
     int sent = device->sendFeatureReport(data.cbegin(), data.length());
-
     if (sent != data.length())
+    {
+        qCWarning(UsbIo) << "send failed: got" << sent << "expected" << data.length();
         return nullptr;
+    }
 
     data.fill('\x0');
     int read = device->getFeatureReport(data.begin(), data.length());
-    qCDebug(UsbIo) << "recv" << data.toHex();
+    if (read != data.length())
+    {
+        qCWarning(UsbIo) << "recv failed: got" << read << "expected" << data.length();
+        return nullptr;
+    }
 
-    return read <= 0 ? nullptr : data;
+    qCDebug(UsbIo) << "recv" << data.toHex();
+    return data;
 }
 
 char *MS735::readPage(Command page, int idx)
@@ -114,13 +126,18 @@ char *MS735::readPage(Command page, int idx)
     auto resp = report(cmd, idx);
 
     if (resp == nullptr || resp.length() < 4 || resp.at(1) != (char)cmd || resp.at(2) != idx || resp.at(3) != (char)PAGE_SIZE)
+    {
+        qCWarning(UsbIo) << "readPage: invalid response";
         return nullptr;
+    }
 
     auto value = new char[PAGE_SIZE];
     Q_CHECK_PTR(value);
 
-    if (device->read(value, PAGE_SIZE) != PAGE_SIZE)
+    auto read = device->read(value, PAGE_SIZE);
+    if (read != PAGE_SIZE)
     {
+        qCWarning(UsbIo) << "readPage: read failed: got" << read << "expected" << PAGE_SIZE;
         delete value;
         return nullptr;
     }
@@ -138,14 +155,24 @@ bool MS735::writePage(const char *data, Command page, int idx)
     cmd[2] = idx;
     cmd[3] = PAGE_SIZE;
     cmd[8] = crc(cmd);
-    int sent = device->sendFeatureReport(cmd.cbegin(), cmd.length());
 
+    qCDebug(UsbIo) << "send" << cmd.toHex();
+    int sent = device->sendFeatureReport(cmd.cbegin(), cmd.length());
     if (sent != cmd.length())
-        return -1;
+    {
+        qCWarning(UsbIo) << "writePage: send failed: got" << sent << "expected" << cmd.length();
+        return false;
+    }
 
     qCDebug(UsbIo) << "writePage" << page << idx << QByteArray(data, PAGE_SIZE).toHex();
+    auto written = device->write(0, data, PAGE_SIZE);
+    if (written != PAGE_SIZE)
+    {
+        qCWarning(UsbIo) << "writePage: write failed: got" << written << "expected" << PAGE_SIZE;
+        return false;
+    }
 
-    return device->write(0, data, PAGE_SIZE) == PAGE_SIZE;
+    return true;
 }
 
 int MS735::button(ButtonIndex btn)
@@ -196,16 +223,12 @@ void MS735::setMacro(int index, const QByteArray& value)
 
 int MS735::readByte(Command page, RegisterOffset offset)
 {
-    Q_ASSERT(offset >= 0 && offset < PAGE_SIZE);
-
     auto bytes = readPage(page);
     return bytes? 0xFF & bytes[offset]: -1;
 }
 
 void MS735::writeByte(Command page, RegisterOffset offset, int value)
 {
-    Q_ASSERT(offset >= 0 && offset < PAGE_SIZE);
-
     auto bytes = readPage(page);
     if (bytes)
     {
@@ -440,7 +463,7 @@ bool MS735::blink()
 bool MS735::switchToFirmwareUpgradeMode()
 {
     // Force reconnect to the device
-    device->open(VENDOR, PRODUCT, INTERFACE);
+    device->open(VENDOR, PRODUCT, INTERFACE, USAGE_PAGE);
 
     auto resp = report(CmdFirmwareMode, '\xAA', '\x55', '\xCC', '\x33', '\xBB', '\x99');
     return !resp.isNull() && resp.length() > 1 && resp.at(1) == (char)CmdFirmwareMode;

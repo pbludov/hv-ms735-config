@@ -30,7 +30,7 @@ SOURCES += \
 
 CONFIG += link_pkgconfig
 
-OPTIONAL_MODULES = hidapi-libusb libusb-1.0 libudev
+OPTIONAL_MODULES = hidapi hidapi-libusb hidapi-hidraw libusb-1.0 libudev
 for (mod, OPTIONAL_MODULES) {
   modVer = $$system(pkg-config --silence-errors --modversion $$mod)
   !isEmpty(modVer) {
@@ -56,7 +56,7 @@ else {
   error("Need libudev or libusb-1.0 development package.")
 }
 
-contains(DEFINES, WITH_HIDAPI_LIBUSB) {
+contains(DEFINES, WITH_HIDAPI) || contains(DEFINES, WITH_HIDAPI_LIBUSB) || contains(DEFINES, WITH_HIDAPI_HIDRAW) {
   SOURCES += $$PWD/qhiddevice_hidapi.cpp
   HEADERS += $$PWD/qhiddevice_hidapi.h
 }

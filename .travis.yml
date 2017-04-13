@@ -31,6 +31,6 @@ script:
     - qmake ../hv-ms735-config.pro -spec ${MKSPEC} CONFIG+=${BUILD_MODE}
     - make
 
-    - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then dpkg-buildpackage -us -uc -I.git -rfakeroot; file ../*.deb fi
+    - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then dpkg-buildpackage -us -uc -I.git -rfakeroot; file ../*.deb; fi
     - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then macdeployqt hv-ms735-config.app -dmg; file *.dmg; fi
 

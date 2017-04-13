@@ -20,18 +20,15 @@
 
 isEmpty(PREFIX): PREFIX   = /usr
 DEFINES += PREFIX=$$PREFIX
-
-QT       += core gui widgets
+CONFIG  += c++11
+QT      += core gui widgets
 
 include (libqxt/libqxt.pri)
 include (libqhid/libqhid.pri)
 
-# GCC tuning
-*-g++*:QMAKE_CXXFLAGS += -std=c++0x
-
-TARGET = hv-ms735-config
-VERSION = 1.0
 TEMPLATE = app
+TARGET   = hv-ms735-config
+VERSION  = 1.0
 
 DEFINES += PRODUCT_NAME=\\\"$$TARGET\\\" \
     PRODUCT_VERSION=\\\"$$VERSION\\\"

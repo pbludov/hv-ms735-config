@@ -1,9 +1,36 @@
 language: c++
 sudo: required
 dist: trusty
-before_install:
-  - sudo apt-get install -y debhelper qt5-default libqt5widgets5 libhidapi-dev libusb-1.0-0-dev fakeroot
-script:
-  - dpkg-buildpackage -us -uc -I.git -rfakeroot
 
+compiler:
+ - clang
+ - gcc
+
+os:
+ - linux
+ - osx
+
+env:
+ - BUILD_MODE=release
+ - BUILD_MODE=debug
+
+install:
+ - if [ "${TRAVIS_OS_NAME}" = "linux" -a "${CXX}" = "clang++" ]; then export MKSPEC=linux-clang; fi
+ - if [ "${TRAVIS_OS_NAME}" = "linux" -a "${CXX}" = "g++" ]; then export MKSPEC=linux-g++; fi
+
+ - if [ "${TRAVIS_OS_NAME}" = "osx" -a "${CXX}" = "clang++" ]; then export MKSPEC=macx-clang; fi
+ - if [ "${TRAVIS_OS_NAME}" = "osx" -a "${CXX}" = "g++" ]; then export MKSPEC=macx-g++; fi
+
+ - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get install -y debhelper qt5-default libqt5widgets5 libhidapi-dev libusb-1.0-0-dev fakeroot; fi
+ - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew install pkg-config qt hidapi libusb; brew link qt --force; fi
+
+script:
+    - echo "Building for ${MKSPEC} in ${BUILD_MODE} mode..."
+    - mkdir build
+    - cd build
+    - qmake ../hv-ms735-config.pro -spec ${MKSPEC} CONFIG+=${BUILD_MODE}
+    - make
+
+    - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then dpkg-buildpackage -us -uc -I.git -rfakeroot; file ../*.deb fi
+    - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then macdeployqt hv-ms735-config.app -dmg; file *.dmg; fi
 

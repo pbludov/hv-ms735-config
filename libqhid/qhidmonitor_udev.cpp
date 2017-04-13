@@ -59,8 +59,8 @@ void QHIDMonitorPrivate::udevDataAvailable()
     auto strDeviceId = udev_device_get_property_value(device, "ID_MODEL_ID");
     auto action = udev_device_get_action(device);
 
-    if (strVendorId && vendorId == strtol(strVendorId, nullptr, 16) &&
-        strDeviceId && deviceId == strtol(strDeviceId, nullptr, 16))
+    if (strVendorId && vendorId == strtol(strVendorId, nullptr, 16) && strDeviceId
+        && deviceId == strtol(strDeviceId, nullptr, 16))
     {
 #if 0
         auto list = udev_device_get_properties_list_entry(device);

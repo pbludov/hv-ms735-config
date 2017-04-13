@@ -30,7 +30,7 @@ inline QString tr(const char *str)
     return QCoreApplication::translate("main", str);
 }
 
-int testKeys(MS735& mice)
+int testKeys(MS735 &mice)
 {
     QByteArray macro;
     macro.append("\x00\x01", 2);
@@ -42,8 +42,8 @@ int testKeys(MS735& mice)
 
         if ((i % 30) == 0)
         {
-            mice.setButton(MS735::ButtonIndex(MS735::SideButton5 + macroIndex),
-                           ((macroIndex + MS735::MinMacroNum) << 16) | 9);
+            mice.setButton(
+                MS735::ButtonIndex(MS735::SideButton5 + macroIndex), ((macroIndex + MS735::MinMacroNum) << 16) | 9);
             mice.setMacro(++macroIndex, macro.append("\x00\x00", 2));
             macro.resize(0);
             macro.append("\x00\x01", 2);
@@ -51,8 +51,7 @@ int testKeys(MS735& mice)
     }
 
     // Write last macro
-    mice.setButton(MS735::ButtonIndex(MS735::SideButton5 + macroIndex),
-                   ((macroIndex + MS735::MinMacroNum) << 16) | 9);
+    mice.setButton(MS735::ButtonIndex(MS735::SideButton5 + macroIndex), ((macroIndex + MS735::MinMacroNum) << 16) | 9);
     mice.setMacro(++macroIndex, macro.append("\x00\x00", 2));
     return mice.save() ? 0 : 1;
 }

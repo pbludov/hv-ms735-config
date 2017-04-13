@@ -26,12 +26,12 @@
 #include <QDebug>
 #include <QThread>
 
-QHIDDevice::QHIDDevice(int vendorId, int deviceId, int interfaceNumber, int usagePage, QObject *parent)
+QHIDDevice::QHIDDevice(int vendorId, int deviceId, int usagePage, QObject *parent)
     : QObject(parent)
     , inputBufferLength(64)
     , outputBufferLength(64)
     , writeDelayValue(20000UL)
-    , d_ptr(new QHIDDevicePrivate(this, vendorId, deviceId, interfaceNumber, usagePage))
+    , d_ptr(new QHIDDevicePrivate(this, vendorId, deviceId, usagePage))
 {
 }
 
@@ -42,11 +42,11 @@ QHIDDevice::~QHIDDevice()
     d_ptr = nullptr;
 }
 
-bool QHIDDevice::open(int vendorId, int deviceId, int interfaceNumber, int usagePage)
+bool QHIDDevice::open(int vendorId, int deviceId, int usagePage)
 {
     d_ptr->q_ptr = nullptr;
     delete d_ptr;
-    d_ptr = new QHIDDevicePrivate(this, vendorId, deviceId, interfaceNumber, usagePage);
+    d_ptr = new QHIDDevicePrivate(this, vendorId, deviceId, usagePage);
     return d_ptr->isValid();
 }
 

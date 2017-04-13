@@ -22,12 +22,8 @@
 
 #include <QRgb>
 
-#define VENDOR     0x04D9
-#define PRODUCT    0xA100
-
-// Linux backend does not support usage page, but supports interface
-#define INTERFACE  2
-// MacOS X backend does not support interface, but supports usage page
+#define VENDOR 0x04D9
+#define PRODUCT 0xA100
 #define USAGE_PAGE 0xFF00
 
 #define PAGE_SIZE 128
@@ -53,7 +49,7 @@ static char crc(const QByteArray data)
 
 MS735::MS735(QObject *parent)
     : QObject(parent)
-    , device(new QHIDDevice(VENDOR, PRODUCT, INTERFACE, USAGE_PAGE, this))
+    , device(new QHIDDevice(VENDOR, PRODUCT, USAGE_PAGE, this))
     , monitor(new QHIDMonitor(VENDOR, PRODUCT, this))
 {
     connect(monitor, SIGNAL(deviceArrival(QString)), this, SLOT(deviceArrival(QString)));
@@ -71,7 +67,7 @@ MS735::~MS735()
 void MS735::deviceArrival(const QString &path)
 {
     qCInfo(UsbIo) << "Detected device arrival at" << path;
-    connectChanged(device->open(VENDOR, PRODUCT, INTERFACE, USAGE_PAGE));
+    connectChanged(device->open(VENDOR, PRODUCT, USAGE_PAGE));
 }
 
 void MS735::deviceRemove()
@@ -125,7 +121,8 @@ char *MS735::readPage(Command page, int idx)
     auto cmd = (Command)(CmdFlagGet | page);
     auto resp = report(cmd, idx);
 
-    if (resp == nullptr || resp.length() < 4 || resp.at(1) != (char)cmd || resp.at(2) != idx || resp.at(3) != (char)PAGE_SIZE)
+    if (resp == nullptr || resp.length() < 4 || resp.at(1) != (char)cmd || resp.at(2) != idx
+        || resp.at(3) != (char)PAGE_SIZE)
     {
         qCWarning(UsbIo) << "readPage: invalid response";
         return nullptr;
@@ -205,10 +202,10 @@ void MS735::setButton(ButtonIndex btn, int value)
 QByteArray MS735::macro(int index)
 {
     auto page = readPage(CmdMacro, index);
-    return page? QByteArray(page, PAGE_SIZE): nullptr;
+    return page ? QByteArray(page, PAGE_SIZE) : nullptr;
 }
 
-void MS735::setMacro(int index, const QByteArray& value)
+void MS735::setMacro(int index, const QByteArray &value)
 {
     auto page = readPage(CmdMacro, index);
     auto length = qMin(PAGE_SIZE, value.length());
@@ -224,7 +221,7 @@ void MS735::setMacro(int index, const QByteArray& value)
 int MS735::readByte(Command page, RegisterOffset offset)
 {
     auto bytes = readPage(page);
-    return bytes? 0xFF & bytes[offset]: -1;
+    return bytes ? 0xFF & bytes[offset] : -1;
 }
 
 void MS735::writeByte(Command page, RegisterOffset offset, int value)
@@ -463,7 +460,7 @@ bool MS735::blink()
 bool MS735::switchToFirmwareUpgradeMode()
 {
     // Force reconnect to the device
-    device->open(VENDOR, PRODUCT, INTERFACE, USAGE_PAGE);
+    device->open(VENDOR, PRODUCT, USAGE_PAGE);
 
     auto resp = report(CmdFirmwareMode, '\xAA', '\x55', '\xCC', '\x33', '\xBB', '\x99');
     return !resp.isNull() && resp.length() > 1 && resp.at(1) == (char)CmdFirmwareMode;
@@ -472,7 +469,7 @@ bool MS735::switchToFirmwareUpgradeMode()
 bool MS735::unsavedChanges()
 {
     return dirtyPages.cend() != std::find_if(dirtyPages.cbegin(), dirtyPages.cend(),
-        [](const std::map<int, bool>::value_type &x) { return x.second; });
+                                    [](const std::map<int, bool>::value_type &x) { return x.second; });
 }
 
 bool MS735::save()

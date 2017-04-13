@@ -56,7 +56,7 @@ class MS735 : public QObject
     {
         // 8E 00 3F(01) 00 42 03 FE 0F
         // 8 bytes zero
-        LedsOffset = 16, // 8 bytes
+        LedsOffset = 16,   // 8 bytes
         ColorsOffset = 24, // 3*5 bytes
         // 9 bytes unknown, possible 3 more colors
         // 16 bytes unknown
@@ -71,7 +71,7 @@ class MS735 : public QObject
         DpiYOffset = 84, // 8 bytes
         DpiXOffset = 92, // 8 bytes
         ProfilesMaskOffset = 100,
-        MainColorOffset, // 3 bytes
+        MainColorOffset,           // 3 bytes
         ProfileColorsOffset = 104, // 3*8 bytes
     };
 
@@ -215,10 +215,10 @@ public:
     void setProfileLeds(int profile, int value);
 
     QByteArray macro(int index);
-    void setMacro(int index, const QByteArray& value);
+    void setMacro(int index, const QByteArray &value);
 
     bool blink();
-    bool backupConfig(class QIODevice* storage);
+    bool backupConfig(class QIODevice *storage);
     bool restoreConfig(class QIODevice *storage);
     bool switchToFirmwareUpgradeMode();
 
@@ -226,7 +226,7 @@ signals:
     void connectChanged(bool connected);
 
 private slots:
-    void deviceArrival(const QString&path);
+    void deviceArrival(const QString &path);
     void deviceRemove();
 
 private:

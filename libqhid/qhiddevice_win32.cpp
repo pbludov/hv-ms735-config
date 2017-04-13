@@ -26,7 +26,7 @@ extern "C" {
 #include <Hidsdi.h>
 }
 
-QHIDDevicePrivate::QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int deviceId, int interfaceNumber, int)
+QHIDDevicePrivate::QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int deviceId, int usagePage)
     : hDevice(INVALID_HANDLE_VALUE)
     , q_ptr(q_ptr)
 {
@@ -44,7 +44,7 @@ QHIDDevicePrivate::QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int device
     ZeroMemory(&did, sizeof(did));
     did.cbSize = sizeof(did);
 
-    for (int idx = 0; SetupDiEnumDeviceInterfaces(dis, nullptr, &InterfaceClassGuid, idx, &did); ++idx)
+    for (int idx = 0; SetupDiEnumDeviceInterfaces(dis, nullptr, &InterfaceClassGuid, idx, &did) && !isValid(); ++idx)
     {
         DWORD size = 0;
         SetupDiGetDeviceInterfaceDetail(dis, &did, nullptr, 0, &size, nullptr);
@@ -65,7 +65,7 @@ QHIDDevicePrivate::QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int device
         else
         {
             auto name = QString::fromUtf16((const ushort *)&pdidd->DevicePath[0]);
-            int vid = -1, pid = -1, iid = -1;
+            int vid = -1, pid = -1;
 
             for (auto ids = name.split(QRegExp("[#&_]")); !ids.isEmpty(); ids.pop_front())
             {
@@ -82,47 +82,52 @@ QHIDDevicePrivate::QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int device
                     pid = strtol(ids.front().toUtf8(), nullptr, 16);
                     continue;
                 }
-
-                if (ids.front().compare("mi", Qt::CaseInsensitive) == 0)
-                {
-                    ids.pop_front();
-                    iid = strtol(ids.front().toUtf8(), nullptr, 16);
-                    continue;
-                }
             }
 
-            if (vid == vendorId && pid == deviceId && iid == interfaceNumber)
+            if (vid == vendorId && pid == deviceId)
             {
                 hDevice = CreateFile(pdidd->DevicePath, GENERIC_WRITE | GENERIC_READ,
                     FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, 0);
 
-                if (isValid())
+                if (!isValid())
                 {
-                    HIDP_CAPS caps;
-                    PHIDP_PREPARSED_DATA ppData = nullptr;
-
-                    if (HidD_GetPreparsedData(hDevice, &ppData))
-                    {
-                        auto hr = HidP_GetCaps(ppData, &caps);
-
-                        if (hr != HIDP_STATUS_SUCCESS)
-                        {
-                            qWarning() << "HidP_GetCaps failed, error" << hr;
-                        }
-                        else
-                        {
-                            // For Windows it's wMaxPacketSize + 1 (report byte), so we decrement.
-                            q_ptr->inputBufferLength = caps.InputReportByteLength - 1;
-                            q_ptr->outputBufferLength = caps.OutputReportByteLength - 1;
-                        }
-
-                        HidD_FreePreparsedData(ppData);
-                    }
-
-                    break;
+                    qWarning() << "CreateFile(" << QString::fromWCharArray(pdidd->DevicePath) << ") failed, error"
+                               << GetLastError();
+                    continue;
                 }
 
-                qWarning() << "CreateFile(pdidd->DevicePath) failed, error" << GetLastError();
+                PHIDP_PREPARSED_DATA ppData = nullptr;
+                if (!HidD_GetPreparsedData(hDevice, &ppData))
+                {
+                    qWarning() << "HidD_GetPreparsedData failed, error" << GetLastError();
+                    CloseHandle(hDevice);
+                    hDevice = INVALID_HANDLE_VALUE;
+                }
+
+                HIDP_CAPS caps;
+                auto hr = HidP_GetCaps(ppData, &caps);
+                if (hr == HIDP_STATUS_SUCCESS)
+                {
+                    if (caps.UsagePage == usagePage)
+                    {
+                        // For Windows it's wMaxPacketSize + 1 (report byte), so we decrement.
+                        q_ptr->inputBufferLength = caps.InputReportByteLength - 1;
+                        q_ptr->outputBufferLength = caps.OutputReportByteLength - 1;
+                    }
+                    else
+                    {
+                        // Not the interface we are looking for.
+                        CloseHandle(hDevice);
+                        hDevice = INVALID_HANDLE_VALUE;
+                    }
+                }
+                else
+                {
+                    qWarning() << "HidP_GetCaps failed, error" << hr;
+                    CloseHandle(hDevice);
+                    hDevice = INVALID_HANDLE_VALUE;
+                }
+                HidD_FreePreparsedData(ppData);
             }
         }
 

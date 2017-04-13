@@ -30,7 +30,7 @@ int LIBUSB_CALL QHIDMonitorPrivate::callback(
     {
         QString str;
         QByteArray path(16, 0);
-        int pathLen = libusb_get_port_numbers(device, (uint8_t*)path.data(), path.length());
+        int pathLen = libusb_get_port_numbers(device, (uint8_t *)path.data(), path.length());
         for (int i = 0; i < pathLen; ++i)
         {
             str.append(QString::number(path.at(i))).append(":");

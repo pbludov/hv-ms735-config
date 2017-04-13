@@ -28,7 +28,7 @@ dependency libraries and header files, such as libusb-1.0, hidapi-libusb.
 Furthermore you need, of course, a C++ compiler and the Make tool.
 The GNU versions of these tools are recommended, but not required.
 
-### Making hv-ms735-config with gcc
+### Making hv-ms735-config with gcc/clang
 
     qmake
     make

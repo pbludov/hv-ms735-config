@@ -26,13 +26,71 @@
 #ifdef WITH_LIBUSB_1_0
 #include <libusb.h>
 
-static void getInOutSize(int vendorId, int deviceId, int interfaceNumber, int *inBufferLength, int *outBufferLength)
+static bool findUsagePage(int usagePage, const uint8_t *desc, size_t size)
+{
+    unsigned int i = 0;
+    int dataLen, keySize;
+
+    while (i < size)
+    {
+        int key = desc[i];
+
+        if ((key & 0xf0) == 0xf0)
+        {
+            /* This is a Long Item. The next byte contains the
+               length of the data section (value) for this key.
+               See the HID specification, version 1.11, section
+               6.2.2.3, titled "Long Items." */
+            dataLen = i + 1 < size ? desc[i + 1] : 0;
+            keySize = 3;
+        }
+        else
+        {
+            /* This is a Short Item. The bottom two bits of the
+               key contain the size code for the data section
+               (value) for this key.  Refer to the HID
+               specification, version 1.11, section 6.2.2.2,
+               titled "Short Items." */
+            dataLen = key & 0x3;
+            if (dataLen == 3)
+                ++dataLen; // 0,1,2,4
+            keySize = 1;
+        }
+
+        if ((key & 0xfc) == 0x04)
+        {
+            if (i + dataLen >= size)
+            {
+                // Truncated report?
+                return false;
+            }
+
+            int page = 0;
+            for (int offset = dataLen; offset > 0; --offset)
+            {
+                page <<= 8;
+                page |= desc[i + offset];
+            }
+
+            if (page == usagePage)
+                return true;
+        }
+
+        // Skip over this key and it's associated data.
+        i += dataLen + keySize;
+    }
+
+    return false;
+}
+
+static void hidapiMissingFeatures(
+    int vendorId, int deviceId, int usagePage, int *interfaceNumber, int *inBufferLength, int *outBufferLength)
 {
     libusb_context *ctx = nullptr;
     int rc = libusb_init(&ctx);
     if (LIBUSB_SUCCESS != rc)
     {
-        qWarning() << "Error creating a context" << libusb_error_name(rc);
+        qWarning() << "libusb_init failed" << rc << libusb_error_name(rc);
         return;
     }
 
@@ -55,13 +113,61 @@ static void getInOutSize(int vendorId, int deviceId, int interfaceNumber, int *i
         if (libusb_get_active_config_descriptor(dev, &confDesc) < 0)
             continue;
 
-        if (interfaceNumber > confDesc->bNumInterfaces)
+        libusb_device_handle *handle;
+        if (libusb_open(dev, &handle) < 0)
+            continue;
+
+        unsigned char buffer[256];
+        for (int iface = 0; iface < confDesc->bNumInterfaces; ++iface)
         {
-            qWarning() << "Need interface" << interfaceNumber << "have only" << confDesc->bNumInterfaces;
-        }
-        else
-        {
-            auto interface = confDesc->interface[interfaceNumber];
+            bool detached = false;
+            bool match = false;
+
+            rc = libusb_kernel_driver_active(handle, iface);
+            if (rc == 1)
+            {
+                rc = libusb_detach_kernel_driver(handle, iface);
+                if (rc < 0)
+                {
+                    qWarning() << "Failed to detach kernel driver" << rc << libusb_error_name(rc);
+                    continue;
+                }
+                detached = true;
+            }
+
+            if (libusb_claim_interface(handle, iface) >= 0)
+            {
+                // Get the HID Report Descriptor.
+                rc = libusb_control_transfer(handle, LIBUSB_ENDPOINT_IN | LIBUSB_RECIPIENT_INTERFACE,
+                    LIBUSB_REQUEST_GET_DESCRIPTOR, LIBUSB_DT_REPORT << 8, iface, buffer, sizeof(buffer), 1000);
+
+                if (rc < 0)
+                {
+                    qWarning() << "Failed to read HID report descriptor" << rc << libusb_error_name(rc);
+                }
+                else
+                {
+                    match = findUsagePage(usagePage, buffer, rc);
+                }
+
+                libusb_release_interface(handle, iface);
+            }
+
+            if (detached)
+            {
+                // Re-attach kernel driver if necessary.
+                rc = libusb_attach_kernel_driver(handle, iface);
+                if (rc < 0)
+                {
+                    qWarning() << "Failed to re-attach kernel driver" << rc << libusb_error_name(rc);
+                }
+            }
+
+            if (!match)
+                continue;
+
+            *interfaceNumber = iface;
+            auto interface = confDesc->interface[iface];
 
             for (int ifIdx = 0; ifIdx < interface.num_altsetting; ++ifIdx)
             {
@@ -77,7 +183,10 @@ static void getInOutSize(int vendorId, int deviceId, int interfaceNumber, int *i
                         *outBufferLength = ep.wMaxPacketSize;
                 }
             }
+
+            break;
         }
+        libusb_close(handle);
 
         libusb_free_config_descriptor(confDesc);
         break;
@@ -88,7 +197,7 @@ static void getInOutSize(int vendorId, int deviceId, int interfaceNumber, int *i
 }
 #endif
 
-QHIDDevicePrivate::QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int deviceId, int interfaceNumber, int usagePage)
+QHIDDevicePrivate::QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int deviceId, int usagePage)
     : device(nullptr)
     , q_ptr(q_ptr)
 {
@@ -98,14 +207,17 @@ QHIDDevicePrivate::QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int device
         return;
     }
 
+    int interfaceNumber = -1;
 #ifdef WITH_LIBUSB_1_0
-    getInOutSize(vendorId, deviceId, interfaceNumber, &q_ptr->inputBufferLength, &q_ptr->outputBufferLength);
+    hidapiMissingFeatures(
+        vendorId, deviceId, usagePage, &interfaceNumber, &q_ptr->inputBufferLength, &q_ptr->outputBufferLength);
 #endif
     auto devices = hid_enumerate(vendorId, deviceId);
 
     for (auto dev = devices; dev != nullptr; dev = dev->next)
     {
-        if (dev->interface_number == interfaceNumber || dev->usage_page == usagePage)
+        if ((dev->usage_page > 0 && dev->usage_page == usagePage)
+            || (dev->interface_number >= 0 && dev->interface_number == interfaceNumber))
         {
             device = hid_open_path(dev->path);
 
@@ -122,7 +234,7 @@ QHIDDevicePrivate::QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int device
 
     if (device == nullptr)
     {
-        qWarning() << "No such device" << vendorId << deviceId << interfaceNumber << usagePage;
+        qWarning() << "No such device" << vendorId << deviceId << usagePage;
     }
 }
 

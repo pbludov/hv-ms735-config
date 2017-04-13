@@ -2,6 +2,7 @@
 
 [![Build Status](https://api.travis-ci.org/pbludov/hv-ms735-config.svg?branch=master)](https://travis-ci.org/pbludov/hv-ms735-config)
 [![Build status](https://ci.appveyor.com/api/projects/status/c9xnl0k4vdi79mor?svg=true)](https://ci.appveyor.com/project/pbludov/hv-ms735-config)
+[![PPA](https://img.shields.io/badge/PPA-available-green.svg)](https://launchpad.net/~pbludov/+archive/ubuntu/ppa)
 
 ## Introduction
 HAVIT Magic Eagle mouse configuration utility.

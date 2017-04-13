@@ -3,7 +3,7 @@ Section: contrib/misc
 Priority: optional
 Maintainer: Pavel Bludov <pbludov@gmail.com>
 Standards-Version: 3.2.1
-Build-Depends: debhelper, qt5-default, libqt5widgets5, libhidapi-dev, libusb-1.0-0-dev
+Build-Depends: pkg-config, debhelper, qt5-default, libqt5widgets5, libhidapi-dev, libusb-1.0-0-dev
 
 Package: hv-ms735-config
 Architecture: i386 amd64

@@ -36,7 +36,6 @@ TEMPLATE = app
 DEFINES += PRODUCT_NAME=\\\"$$TARGET\\\" \
     PRODUCT_VERSION=\\\"$$VERSION\\\"
 
-
 SOURCES += src/buttonedit.cpp \
     src/colorbutton.cpp \
     src/enumedit.cpp \
@@ -75,11 +74,17 @@ FORMS    += ui/mainwindow.ui \
 RESOURCES += \
     res/hv-ms735-config.qrc
 
+# MacOS specific
 ICON = res/hv-ms735-config.icns
+QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.9
+QMAKE_TARGET_BUNDLE_PREFIX = github.pbludov
+
+# Windows specific
 RC_ICONS = res/hv-ms735-config.ico
 QMAKE_TARGET_COPYRIGHT = Pavel Bludov <pbludov@gmail.com>
 QMAKE_TARGET_DESCRIPTION = HAVIT Magic Eagle mouse configuration utility.
 
+# Linux specific
 target.path=$$PREFIX/bin
 man.files=doc/hv-ms735-config.1
 man.path=$$PREFIX/share/man/man1

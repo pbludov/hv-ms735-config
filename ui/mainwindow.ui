@@ -117,22 +117,10 @@
    <property name="text">
     <string>Save</string>
    </property>
-   <property name="toolTip">
-    <string>Save (Ctrl+S)</string>
-   </property>
-   <property name="shortcut">
-    <string notr="true">Ctrl+S</string>
-   </property>
   </action>
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
-   </property>
-   <property name="toolTip">
-    <string>Exit (Alt+F4)</string>
-   </property>
-   <property name="shortcut">
-    <string notr="true">Alt+F4</string>
    </property>
    <property name="menuRole">
     <enum>QAction::QuitRole</enum>

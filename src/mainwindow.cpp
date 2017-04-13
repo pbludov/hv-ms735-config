@@ -30,6 +30,13 @@
 #include <QCloseEvent>
 #include <QMessageBox>
 
+static void initAction(QAction *action, QStyle::StandardPixmap icon, QKeySequence::StandardKey key)
+{
+    action->setIcon(qApp->style()->standardIcon(icon));
+    action->setShortcut(key);
+    action->setToolTip(action->shortcut().toString(QKeySequence::NativeText));
+}
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -37,8 +44,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     // The Designer really lacs this functionality
-    ui->actionExit->setIcon(style()->standardIcon(QStyle::SP_DialogCloseButton));
-    ui->actionSave->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
+    initAction(ui->actionExit, QStyle::SP_DialogCloseButton, QKeySequence::Quit);
+    initAction(ui->actionSave, QStyle::SP_DialogSaveButton, QKeySequence::Save);
 
     ui->labelText->setText(ui->labelText->text().arg(PRODUCT_VERSION).arg(__DATE__));
     connect(mice, SIGNAL(connectChanged(bool)), this, SLOT(onMiceConnected(bool)));

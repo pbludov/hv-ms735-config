@@ -18,6 +18,8 @@ or if you need some extra features that the official software does not provide.
 the device will be broken. To restore the device from the "brick" state
 follow the [instructions](doc/unbrick.md).
 
+* Magic Eagle is a registered trademark of [HAVIT Group](http://www.havit.hk/).
+
 ## Installation from sources
 
 ### Requirements
@@ -59,6 +61,9 @@ The GNU versions of these tools are recommended, but not required.
     candle -dConfiguration=%CONFIGURATION% -dQtRedistDir=qtredist hv-ms735-config.wxs qtredist.wxs
     light hv-ms735-config.wixobj qtredist.wixobj -out hv-ms735-config.msi
 
+### Building the DMG package (MacOS)
+
+    macdeployqt hv-ms735-config.app -dmg
 
 ## Galery
 ![side buttons](doc/sidebuttons.png)

@@ -2,7 +2,8 @@
 
 [![Build Status](https://api.travis-ci.org/pbludov/hv-ms735-config.svg?branch=master)](https://travis-ci.org/pbludov/hv-ms735-config)
 [![Build status](https://ci.appveyor.com/api/projects/status/c9xnl0k4vdi79mor?svg=true)](https://ci.appveyor.com/project/pbludov/hv-ms735-config)
-[![PPA](https://img.shields.io/badge/PPA-available-green.svg)](https://launchpad.net/~pbludov/+archive/ubuntu/ppa)
+[![PPA](https://img.shields.io/badge/PPA-available-brightgreen.svg)](https://launchpad.net/~pbludov/+archive/ubuntu/ppa)
+[![Chocolatey](https://img.shields.io/badge/Chocolatey-available-brightgreen.svg)](https://chocolatey.org/packages/hv-ms735-config)
 
 ## Introduction
 HAVIT Magic Eagle mouse configuration utility.
@@ -10,7 +11,7 @@ HAVIT Magic Eagle mouse configuration utility.
 This program **is not** an official utility from the product vendor.
 
 It is strongly recommended to use the software from the official website:
-[http://www.havit.hk/downloads/]
+http://www.havit.hk/downloads/
 
 Use this utility only if your system is not supported by the manufacturer,
 or if you need some extra features that the official software does not provide.
@@ -21,8 +22,22 @@ follow the [instructions](doc/unbrick.md).
 
 * Magic Eagle is a registered trademark of [HAVIT Group](http://www.havit.hk/).
 
-## Installation from sources
+## Installation
+### Ubuntu
 
+    sudo add-apt-repository ppa:pbludov/ppa && sudo apt-get update && sudo apt-get install hv-ms735-config
+
+### MacOS X (via homebrew)
+
+    brew cask install https://raw.githubusercontent.com/pbludov/hv-ms735-config/master/hv-ms735-config.rb
+
+### Windows (via chocolatey)
+
+    cinst hv-ms735-config
+
+Also, binary packages are available in [releases](https://github.com/pbludov/hv-ms735-config/releases).
+
+## Building from sources
 ### Requirements
 For compiling hv-ms735-config yourself, you will need the QT (>= 5.2).
 It is free and available at [http://www.qt.io]. You may also need its

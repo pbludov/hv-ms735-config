@@ -1,5 +1,4 @@
 # C++ objects and libs
-
 *.slo
 *.lo
 *.o
@@ -11,7 +10,6 @@
 *.dylib
 
 # Qt-es
-
 /.qmake.cache
 /.qmake.stash
 *.pro.user
@@ -26,13 +24,17 @@ Makefile*
 *build-*
 
 # QtCreator
-
 *.autosave
 
-# QtCtreator Qml
-*.qmlproject.user
-*.qmlproject.user.*
+# Packages
+*.wixobj
+*.msi
+*.nupkg
+*.app
+*.dmg
+*.rpm
+*.deb
+*.changes
 
-# QtCtreator CMake
-CMakeLists.txt.user
-
+# Mac trash
+.DS_Store

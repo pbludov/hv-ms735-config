@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>hv-ms735-config</id>
+    <version>1.0</version>
+    <authors>Pavel Bludov</authors>
+    <title>HV MS735 configuration utility</title>
+    <summary>HAVIT Magic Eagle configuration utility</summary>
+    <description>HAVIT Magic Eagle mouse unofficial configuration utility. Allows you to configure the buttons and profiles of your device.</description>
+    <projectUrl>https://github.com/pbludov/hv-ms735-config/</projectUrl>
+    <tags>admin havit hv-ms735</tags>
+    <copyright>Pavel Bludov</copyright>
+    <licenseUrl>https://github.com/pbludov/hv-ms735-config/blob/master/LICENSE</licenseUrl>
+    <packageSourceUrl>https://github.com/pbludov/hv-ms735-config/</packageSourceUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <iconUrl>https://github.com/pbludov/hv-ms735-config/raw/master/res/hv-ms735-config.png</iconUrl>
+    <releaseNotes>Initial version</releaseNotes>
+  </metadata>
+  <files>
+    <file src="chocolateyInstall.ps1" target="tools" />
+  </files>
+</package>

@@ -59,7 +59,9 @@ bool QHIDDevice::isValid() const
 int QHIDDevice::sendFeatureReport(const char *report, int length)
 {
     Q_D(QHIDDevice);
-    return d->sendFeatureReport(report, length);
+    auto ret = d->sendFeatureReport(report, length);
+    QThread::usleep(writeDelayValue);
+    return ret;
 }
 
 int QHIDDevice::getFeatureReport(char *report, int length)

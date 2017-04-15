@@ -1,7 +1,7 @@
 Summary: hv-ms735-config
 Name: hv-ms735-config
 Provides: hv-ms735-config
-Version: 1.0
+Version: 1.0.1
 Release: 1%{?dist}
 License: LGPL-2.1+
 Source: %{name}.tar.gz
@@ -43,6 +43,12 @@ make install INSTALL_ROOT="%buildroot";
 %{_datadir}/icons/hicolor/48x48/apps/%{name}.png
 
 %changelog
+* Sat Apr 15 2017 Pavel Bludov <pbludov@gmail.com>
++ Version 1.0.1
+- USB report rate.
+- Configurable delay for the neon illumination.
+- More stable MacOS version.
+
 * Sun Apr 9 2017 Pavel Bludov <pbludov@gmail.com>
 + Version 1.0
 - Initial commit

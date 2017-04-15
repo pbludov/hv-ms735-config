@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>hv-ms735-config</id>
-    <version>1.0</version>
+    <version>1.0.1</version>
     <authors>Pavel Bludov</authors>
     <title>HV MS735 configuration utility</title>
     <summary>HAVIT Magic Eagle configuration utility</summary>
@@ -14,7 +14,7 @@
     <packageSourceUrl>https://github.com/pbludov/hv-ms735-config/</packageSourceUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <iconUrl>https://github.com/pbludov/hv-ms735-config/raw/master/res/hv-ms735-config.png</iconUrl>
-    <releaseNotes>Initial version</releaseNotes>
+    <releaseNotes>USB report rate. Configurable delay for the neon illumination. More stable MacOS version.</releaseNotes>
   </metadata>
   <files>
     <file src="chocolateyInstall.ps1" target="tools" />

@@ -89,6 +89,12 @@ void PageLight::onLightTypeChanged(int value)
         if (ui->cbType == widget || ui->labelType == widget)
             continue;
 
+        if (ui->sliderValue == widget || ui->labelValue == widget)
+        {
+            widget->setVisible(value != MS735::LightOff);
+            continue;
+        }
+
         widget->setVisible(extraControls);
     }
     ui->labelValue->setText(value == MS735::LightStandard ? tr("Brightn&ess") : tr("D&elay"));

@@ -39,6 +39,7 @@ public:
 private slots:
     void onSensitivityXChanged(int value);
     void onSensitivityYChanged(int value);
+    void onReportRateChanged(int value);
 
 private:
     Ui::PageSensitivity *ui;

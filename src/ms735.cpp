@@ -56,8 +56,8 @@ MS735::MS735(QObject *parent)
     connect(monitor, SIGNAL(deviceArrival(QString)), this, SLOT(deviceArrival(QString)));
     connect(monitor, SIGNAL(deviceRemove()), this, SLOT(deviceRemove()));
 
-    int retry = 10;
-    while (retry > 0 && (!device->isValid() || report(CmdEventMask, '\x0').isNull()))
+    // On osx open may fail on first try with error 60.
+    for (int retry = 0; retry < 10 && (!device->isValid() || report(CmdEventMask, '\x0').isNull()); ++retry)
     {
         QThread::usleep(10000UL);
         device->open(VENDOR, PRODUCT, USAGE_PAGE);
@@ -273,10 +273,23 @@ void MS735::writeColor(RegisterOffset offset, int index, int value)
     }
 }
 
+int MS735::reportRateDivider()
+{
+    auto resp = report(CmdGetReportRateDivider);
+    return resp.isNull() || resp.length() < 4 || resp.at(1) != (char)CmdGetReportRateDivider ? -1 : (0xFF & resp.at(3));
+}
+
+void MS735::setReportRateDivider(int value)
+{
+    Q_ASSERT(value >= MinReportRateDivider && value <= MaxReportRateDivider);
+
+    report(CmdReportRateDivider, 0, value);
+}
+
 int MS735::profile()
 {
     auto resp = report(CmdGetProfile);
-    return resp.isNull() || resp.length() < 4 || resp.at(1) != (char)CmdGetProfile ? -1 : resp.at(3);
+    return resp.isNull() || resp.length() < 4 || resp.at(1) != (char)CmdGetProfile ? -1 : (0xFF & resp.at(3));
 }
 
 void MS735::setProfile(int value)
@@ -463,6 +476,12 @@ bool MS735::blink()
 {
     auto resp = report(CmdBlink);
     return !resp.isNull() && resp.length() > 1 && resp.at(1) == (char)CmdBlink;
+}
+
+bool MS735::ping()
+{
+    auto resp = report(CmdPing);
+    return !resp.isNull() && resp.length() > 1 && resp.at(1) == (char)CmdPing;
 }
 
 bool MS735::switchToFirmwareUpgradeMode()

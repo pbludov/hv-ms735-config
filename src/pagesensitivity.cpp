@@ -26,9 +26,11 @@ PageSensitivity::PageSensitivity(QWidget *parent)
 {
     ui->setupUi(this);
 
-    auto measuredWidth = fontMetrics().width(tr("X axis  000%"));
+    auto measuredWidth = fontMetrics().width(tr("X axis  XXX%"));
     ui->labelX->setMinimumWidth(measuredWidth);
     ui->labelY->setMinimumWidth(measuredWidth);
+
+    ui->labelReportRate->setMinimumWidth(fontMetrics().width(tr("Every XXX report")));
 }
 
 PageSensitivity::~PageSensitivity()
@@ -40,13 +42,16 @@ bool PageSensitivity::load(MS735 *mice)
 {
     auto valueX = mice->sensitivityX();
     auto valueY = mice->sensitivityX();
-    if (valueX < 0 || valueY < 0)
+    auto valueDivider = mice->reportRateDivider();
+    if (valueX < 0 || valueY < 0 || valueDivider < 0)
         return false;
 
     ui->sliderX->setValue(valueX);
     onSensitivityXChanged(valueX);
     ui->sliderY->setValue(valueY);
     onSensitivityYChanged(valueY);
+    ui->sliderReportRate->setValue(valueDivider);
+    onReportRateChanged(valueDivider);
     return true;
 }
 
@@ -54,6 +59,7 @@ void PageSensitivity::save(MS735 *mice)
 {
     mice->setSensitivityX(ui->sliderX->value());
     mice->setSensitivityY(ui->sliderY->value());
+    mice->setReportRateDivider(ui->sliderReportRate->value());
 }
 
 void PageSensitivity::onSensitivityXChanged(int value)
@@ -64,4 +70,9 @@ void PageSensitivity::onSensitivityXChanged(int value)
 void PageSensitivity::onSensitivityYChanged(int value)
 {
     ui->labelY->setText(tr("&Y axis %1%").arg(value, 4));
+}
+
+void PageSensitivity::onReportRateChanged(int value)
+{
+    ui->labelReportRate->setText(tr("&Every %1 report").arg(value));
 }

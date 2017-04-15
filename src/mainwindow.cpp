@@ -51,7 +51,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(mice, SIGNAL(connectChanged(bool)), this, SLOT(onMiceConnected(bool)));
 
     // Check the device availability
-    onMiceConnected(mice->blink());
+    onMiceConnected(mice->ping());
 }
 
 MainWindow::~MainWindow()

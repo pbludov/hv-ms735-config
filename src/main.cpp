@@ -74,6 +74,10 @@ int main(int argc, char *argv[])
     parser.addOption(profileOption);
     QCommandLineOption setProfileOption(QStringList() << "P" << "set-profile", tr("Select the active <profile>."), tr("profile"));
     parser.addOption(setProfileOption);
+    QCommandLineOption dividerOption(QStringList() << "d" << "divider", tr("Get the active report rate divider."));
+    parser.addOption(dividerOption);
+    QCommandLineOption setDividerOption(QStringList() << "D" << "set-divider", tr("Select the active report rate <divider>."), tr("divider"));
+    parser.addOption(setDividerOption);
     QCommandLineOption backupOption(QStringList() << "b" << "backup", tr("Backup NAND data to a <file>."), tr("file"));
     parser.addOption(backupOption);
     QCommandLineOption restoreOption(QStringList() << "r" << "restore", tr("Restore NAND data from a <file>."), tr("file"));
@@ -123,7 +127,7 @@ int main(int argc, char *argv[])
     }
 
     // For any other command line option we need the device, so check it in advance.
-    if (!mice.blink())
+    if (!mice.ping())
     {
         qWarning() << "The device was not found.";
         return 1;
@@ -182,6 +186,18 @@ int main(int argc, char *argv[])
     if (parser.isSet(setProfileOption))
     {
         mice.setProfile(parser.value(setProfileOption).toInt());
+        return 0;
+    }
+
+    if (parser.isSet(dividerOption))
+    {
+        qWarning() << mice.reportRateDivider();
+        return 0;
+    }
+
+    if (parser.isSet(setDividerOption))
+    {
+        mice.setReportRateDivider(parser.value(setDividerOption).toInt());
         return 0;
     }
 

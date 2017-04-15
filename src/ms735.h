@@ -32,6 +32,7 @@ class MS735 : public QObject
     Q_PROPERTY(int lightValue READ lightValue WRITE setLightValue)
     Q_PROPERTY(int numProfiles READ numProfiles WRITE setNumProfiles)
     Q_PROPERTY(int profile READ profile WRITE setProfile)
+    Q_PROPERTY(int reportRateDivider READ reportRateDivider WRITE setReportRateDivider)
     Q_PROPERTY(int sensitivityX READ sensitivityX WRITE setSensitivityX)
     Q_PROPERTY(int sensitivityY READ sensitivityY WRITE setSensitivityY)
     Q_PROPERTY(bool unsavedChanges READ unsavedChanges)
@@ -42,14 +43,16 @@ class MS735 : public QObject
     {
         CmdEventMask = 1,
         CmdBlink = 2,
-        CmdUnknown = 3,
+        CmdReportRateDivider = 3,
         CmdProfile = 4,
         CmdFirmwareMode = 0x0A,
         CmdControl = 0x0C,
         CmdButtons = 0x0D,
         CmdMacro = 0x0F,
         CmdFlagGet = 0x80,
+        CmdPing = CmdBlink | CmdFlagGet,
         CmdGetProfile = CmdProfile | CmdFlagGet,
+        CmdGetReportRateDivider = CmdReportRateDivider | CmdFlagGet,
     };
 
     enum RegisterOffset
@@ -80,6 +83,8 @@ public:
     {
         MinMacroNum = 1,
         MaxMacroNum = 100,
+        MinReportRateDivider = 1,
+        MaxReportRateDivider = 255,
         MaxColors = 5,
         MaxProfiles = 8,
         MinDpi = 0,
@@ -166,6 +171,9 @@ public:
     explicit MS735(QObject *parent = 0);
     ~MS735();
 
+    int reportRateDivider();
+    void setReportRateDivider(int value);
+
     int profile();
     void setProfile(int value);
 
@@ -218,6 +226,7 @@ public:
     void setMacro(int index, const QByteArray &value);
 
     bool blink();
+    bool ping();
     bool backupConfig(class QIODevice *storage);
     bool restoreConfig(class QIODevice *storage);
     bool switchToFirmwareUpgradeMode();

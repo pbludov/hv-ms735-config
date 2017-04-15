@@ -153,38 +153,38 @@ static void hidapiMissingFeatures(
                 libusb_release_interface(handle, iface);
             }
 
-            if (detached)
+            if (match)
             {
-                // Re-attach kernel driver if necessary.
+                *interfaceNumber = iface;
+                auto interface = confDesc->interface[iface];
+
+                for (int ifIdx = 0; ifIdx < interface.num_altsetting; ++ifIdx)
+                {
+                    auto intfDesc = interface.altsetting[ifIdx];
+
+                    for (int epIdx = 0; epIdx < intfDesc.bNumEndpoints; ++epIdx)
+                    {
+                        auto ep = intfDesc.endpoint[epIdx];
+
+                        if ((ep.bEndpointAddress & LIBUSB_ENDPOINT_DIR_MASK) == LIBUSB_ENDPOINT_IN)
+                            *inBufferLength = ep.wMaxPacketSize;
+                        else if ((ep.bEndpointAddress & LIBUSB_ENDPOINT_DIR_MASK) == LIBUSB_ENDPOINT_OUT)
+                            *outBufferLength = ep.wMaxPacketSize;
+                    }
+                }
+
+                // Note that the kernel driver is still detached.
+                break;
+            }
+            else if (detached)
+            {
+                // Re-attach kernel driver for non-mached devices.
                 rc = libusb_attach_kernel_driver(handle, iface);
                 if (rc < 0)
                 {
                     qWarning() << "Failed to re-attach kernel driver" << rc << libusb_error_name(rc);
                 }
             }
-
-            if (!match)
-                continue;
-
-            *interfaceNumber = iface;
-            auto interface = confDesc->interface[iface];
-
-            for (int ifIdx = 0; ifIdx < interface.num_altsetting; ++ifIdx)
-            {
-                auto intfDesc = interface.altsetting[ifIdx];
-
-                for (int epIdx = 0; epIdx < intfDesc.bNumEndpoints; ++epIdx)
-                {
-                    auto ep = intfDesc.endpoint[epIdx];
-
-                    if ((ep.bEndpointAddress & LIBUSB_ENDPOINT_DIR_MASK) == LIBUSB_ENDPOINT_IN)
-                        *inBufferLength = ep.wMaxPacketSize;
-                    else if ((ep.bEndpointAddress & LIBUSB_ENDPOINT_DIR_MASK) == LIBUSB_ENDPOINT_OUT)
-                        *outBufferLength = ep.wMaxPacketSize;
-                }
-            }
-
-            break;
         }
         libusb_close(handle);
 

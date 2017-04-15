@@ -135,7 +135,7 @@ char *MS735::readPage(Command page, int idx)
     if (read != PAGE_SIZE)
     {
         qCWarning(UsbIo) << "readPage: read failed: got" << read << "expected" << PAGE_SIZE;
-        delete value;
+        delete[] value;
         return nullptr;
     }
 

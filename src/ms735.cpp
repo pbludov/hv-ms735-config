@@ -21,6 +21,7 @@
 #include "qhidmonitor.h"
 
 #include <QRgb>
+#include <QThread>
 
 #define VENDOR 0x04D9
 #define PRODUCT 0xA100
@@ -54,6 +55,13 @@ MS735::MS735(QObject *parent)
 {
     connect(monitor, SIGNAL(deviceArrival(QString)), this, SLOT(deviceArrival(QString)));
     connect(monitor, SIGNAL(deviceRemove()), this, SLOT(deviceRemove()));
+
+    int retry = 10;
+    while (retry > 0 && (!device->isValid() || report(CmdEventMask, '\x0').isNull()))
+    {
+        QThread::usleep(10000UL);
+        device->open(VENDOR, PRODUCT, USAGE_PAGE);
+    }
 }
 
 MS735::~MS735()

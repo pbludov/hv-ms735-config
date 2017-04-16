@@ -30,6 +30,8 @@ QHIDDevicePrivate::QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int device
     : hDevice(INVALID_HANDLE_VALUE)
     , q_ptr(q_ptr)
 {
+    ZeroMemory(&overlapped, sizeof(OVERLAPPED));
+
     const GUID InterfaceClassGuid = {0x4d1e55b2, 0xf16f, 0x11cf, {0x88, 0xcb, 0x00, 0x11, 0x11, 0x00, 0x00, 0x30}};
     auto dis = SetupDiGetClassDevs(&InterfaceClassGuid, nullptr, nullptr, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE);
 
@@ -87,12 +89,10 @@ QHIDDevicePrivate::QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int device
             if (vid == vendorId && pid == deviceId)
             {
                 hDevice = CreateFile(pdidd->DevicePath, GENERIC_WRITE | GENERIC_READ,
-                    FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, 0);
+                    FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 0);
 
                 if (!isValid())
                 {
-                    qWarning() << "CreateFile(" << QString::fromWCharArray(pdidd->DevicePath) << ") failed, error"
-                               << GetLastError();
                     continue;
                 }
 
@@ -111,8 +111,10 @@ QHIDDevicePrivate::QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int device
                     if (caps.UsagePage == usagePage)
                     {
                         // For Windows it's wMaxPacketSize + 1 (report byte), so we decrement.
-                        q_ptr->inputBufferLength = caps.InputReportByteLength - 1;
-                        q_ptr->outputBufferLength = caps.OutputReportByteLength - 1;
+                        q_ptr->inputBufferLength = caps.InputReportByteLength;
+                        q_ptr->outputBufferLength = caps.OutputReportByteLength;
+
+                        overlapped.hEvent = CreateEvent(nullptr, false, false, nullptr);
                     }
                     else
                     {
@@ -141,8 +143,15 @@ QHIDDevicePrivate::~QHIDDevicePrivate()
 {
     if (isValid())
     {
+        HidD_FlushQueue(hDevice);
         CloseHandle(hDevice);
         hDevice = INVALID_HANDLE_VALUE;
+    }
+
+    if (overlapped.hEvent)
+    {
+        CloseHandle(overlapped.hEvent);
+        overlapped.hEvent = nullptr;
     }
 }
 
@@ -171,28 +180,77 @@ int QHIDDevicePrivate::write(const char *buffer, int length)
 
     Q_Q(QHIDDevice);
     DWORD written = 0;
+    int ret;
 
-    if (length < q->outputBufferLength + 1)
+    if (length < q->outputBufferLength)
     {
+        // Windows expects the number of bytes which are in the _longest_ report
+        // (plus one for the report number) bytes even if the data is a report
+        // which is shorter than that.
         QByteArray tmp(buffer, length);
-        tmp.resize(q->outputBufferLength + 1);
-        return WriteFile(hDevice, tmp.cbegin(), tmp.length(), &written, nullptr) ? written : -1;
+        tmp.resize(q->outputBufferLength);
+        ret = WriteFile(hDevice, tmp.cbegin(), tmp.length(), &written, &overlapped);
+    }
+    else
+    {
+        // Safe to send the buffer as is.
+        ret = WriteFile(hDevice, buffer, length, &written, &overlapped);
     }
 
-    return WriteFile(hDevice, buffer, length, &written, nullptr) ? written : -1;
+    if (!ret && GetLastError() == ERROR_IO_PENDING)
+    {
+        ret = GetOverlappedResult(hDevice, &overlapped, &written, true);
+    }
+
+    if (ret)
+    {
+        return qMin((int)written, length);
+    }
+
+    CancelIo(hDevice);
+    return -1;
 }
 
-int QHIDDevicePrivate::read(char *buffer, int length)
+int QHIDDevicePrivate::read(char *buffer, int length, unsigned int timeout)
 {
     Q_Q(QHIDDevice);
     DWORD read = 0;
-    QByteArray tmp(q->inputBufferLength + 1, Qt::Uninitialized);
-    if (ReadFile(hDevice, tmp.begin(), tmp.length(), &read, nullptr) && (int)read == tmp.length())
+    QByteArray tmp(q->inputBufferLength, Qt::Uninitialized);
+
+    ResetEvent(overlapped.hEvent);
+    auto ret = ReadFile(hDevice, tmp.begin(), tmp.length(), &read, &overlapped);
+    if (!ret)
     {
-        // Remove the first byte (report id).
-        memcpy(buffer, tmp.cbegin() + 1, length);
+        if (GetLastError() == ERROR_IO_PENDING && timeout)
+        {
+            ret = WaitForSingleObject(overlapped.hEvent, timeout);
+            if (ret == WAIT_OBJECT_0)
+            {
+                ret = GetOverlappedResult(hDevice, &overlapped, &read, true);
+            }
+        }
+    }
+
+    if (ret && (int)read == tmp.length())
+    {
+        QByteArray::const_iterator begin;
+        if (tmp.at(0))
+        {
+            // Copy as is (with report id)
+            begin = tmp.cbegin();
+        }
+        else
+        {
+            // Remove the first byte (zero report id).
+            begin = tmp.cbegin() + 1;
+            --read;
+        }
+
+        length = qMin((int)read, length);
+        memcpy(buffer, begin, length);
         return length;
     }
 
+    CancelIo(hDevice);
     return -1;
 }

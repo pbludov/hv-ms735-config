@@ -28,17 +28,20 @@ QT_FORWARD_DECLARE_CLASS(QSlider)
 
 class ProfileEdit : public MiceWidget
 {
+    Q_PROPERTY(int index READ index)
     Q_PROPERTY(bool active READ active WRITE setActive)
 
     Q_OBJECT
 public:
-    explicit ProfileEdit(int index, QWidget *parent = 0);
+    explicit ProfileEdit(int indexValue, QWidget *parent = 0);
 
     bool load(class MS735 *mice);
     void save(class MS735 *mice);
 
     bool active() const;
     void setActive(bool value);
+
+    int index() const;
 
 private slots:
     void onDpiXChanged(int value);
@@ -48,7 +51,7 @@ private slots:
     void onSyncDpiToggled(bool sync);
 
 private:
-    int index;
+    int indexValue;
     QCheckBox *checkEnabled;
     QLabel*labelDpiX;
     QLabel*labelDpiY;

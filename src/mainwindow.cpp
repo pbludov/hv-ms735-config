@@ -49,6 +49,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->labelText->setText(ui->labelText->text().arg(PRODUCT_VERSION).arg(__DATE__));
     connect(mice, SIGNAL(connectChanged(bool)), this, SLOT(onMiceConnected(bool)));
+    connect(mice, SIGNAL(buttonsPressed(int)), this, SLOT(onButtonsPressed(int)));
 
     // Check the device availability
     onMiceConnected(mice->ping());
@@ -80,6 +81,23 @@ void MainWindow::onSave()
     if (!mice->blink() || !mice->save())
     {
         QMessageBox::warning(this, windowTitle(), tr("Failed to save"));
+    }
+}
+
+void MainWindow::onProfileChanged(int, int profile)
+{
+    foreach (auto edit, findChildren<ProfileEdit *>())
+    {
+        edit->setActive(edit->index() == profile - 1);
+    }
+}
+
+void MainWindow::onButtonsPressed(int mask)
+{
+    foreach (auto edit, findChildren<ButtonEdit *>())
+    {
+        auto index = (MS735::ButtonIndex)edit->property("ButtonIndex").toInt();
+        edit->highlight(mask & (1 << index));
     }
 }
 
@@ -212,7 +230,10 @@ void MainWindow::onPreparePage(int idx)
     else if (page == ui->pageSensitivity)
         ok = initPage(page, new PageSensitivity());
     else if (page == ui->pageProfiles)
+    {
         ok = prepareProfilesPage(page, mice);
+        connect(mice, SIGNAL(profileChanged(int,int)), this, SLOT(onProfileChanged(int,int)));
+    }
     else if (page == ui->pageLight)
         ok = initPage(page, new PageLight());
 

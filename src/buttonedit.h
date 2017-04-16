@@ -30,20 +30,6 @@ class ButtonEdit : public QWidget
 {
     Q_PROPERTY(quint32 value READ value WRITE setValue)
 
-    enum Mode
-    {
-        // Real modes
-        ModeKey = 0,
-        ModeButton = 1,
-        ModeCommand = 3,
-        ModeDpi = 7,
-        ModeMacro = 9,
-        ModeSequence = 10,
-        // Virtual modes
-        ModeOff = 0xFF,
-        ModeCustom = 0xFE,
-    };
-
     Q_OBJECT
 
 public:
@@ -52,15 +38,13 @@ public:
     quint32 value() const;
     void setValue(quint32 value);
 
-signals:
+    void highlight(bool on);
 
 public slots:
     void onModeChanged(int idx);
 
-private slots:
-
 private:
-    quint32 extractValue(Mode mode) const;
+    quint32 extractValue(int mode) const;
     void hideWidgets();
 
     QLabel *label;
@@ -78,8 +62,8 @@ private:
     // Command (3)
     class EnumEdit *editCommand;
 
-    // DPI (7)
-    QComboBox *cbDpi;
+    // Profile (7)
+    QComboBox *cbProfile;
 
     // Macro (9)
     QLabel *labelRepeat;

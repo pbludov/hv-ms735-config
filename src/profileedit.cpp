@@ -32,7 +32,7 @@
 
 ProfileEdit::ProfileEdit(int index, QWidget *parent)
     : MiceWidget(parent)
-    , index(index)
+    , indexValue(index)
 {
     const int spacing = 24;
     auto measuredWidth = fontMetrics().width(tr("DPI X    000000"));
@@ -98,11 +98,11 @@ ProfileEdit::ProfileEdit(int index, QWidget *parent)
 
 bool ProfileEdit::load(class MS735 *mice)
 {
-    auto enabled = mice->profileEnabled(index);
-    auto dpiX = mice->profileDpiX(index);
-    auto dpiY = mice->profileDpiY(index);
-    auto color = mice->profileColor(index);
-    auto leds = mice->profileLeds(index);
+    auto enabled = mice->profileEnabled(indexValue);
+    auto dpiX = mice->profileDpiX(indexValue);
+    auto dpiY = mice->profileDpiY(indexValue);
+    auto color = mice->profileColor(indexValue);
+    auto leds = mice->profileLeds(indexValue);
     if (dpiX < 0 || dpiY < 0 || color < 0 || leds < 0)
         return false;
 
@@ -120,20 +120,20 @@ void ProfileEdit::save(class MS735 *mice)
 {
     auto leds = cbLeds->mask();
     auto enabled = checkEnabled->isChecked();
-    if (enabled && mice->numProfiles() <= index)
+    if (enabled && mice->numProfiles() <= indexValue)
     {
-        mice->setNumProfiles(index + 1);
+        mice->setNumProfiles(indexValue + 1);
     }
 
-    mice->setProfileDpiX(index, sliderDpiX->value());
-    mice->setProfileDpiY(index, checkSyncDpi? sliderDpiX->value() : sliderDpiY->value());
-    mice->setProfileEnabled(index, enabled);
-    mice->setProfileColor(index, btnColor->value());
-    mice->setProfileLeds(index, leds);
+    mice->setProfileDpiX(indexValue, sliderDpiX->value());
+    mice->setProfileDpiY(indexValue, checkSyncDpi? sliderDpiX->value() : sliderDpiY->value());
+    mice->setProfileEnabled(indexValue, enabled);
+    mice->setProfileColor(indexValue, btnColor->value());
+    mice->setProfileLeds(indexValue, leds);
 
     if (btnActive->isChecked())
     {
-        mice->setProfile(index + 1);
+        mice->setProfile(indexValue + 1);
     }
 }
 
@@ -145,6 +145,11 @@ bool ProfileEdit::active() const
 void ProfileEdit::setActive(bool value)
 {
     btnActive->setChecked(value);
+}
+
+int ProfileEdit::index() const
+{
+    return indexValue;
 }
 
 void ProfileEdit::onDpiXChanged(int value)

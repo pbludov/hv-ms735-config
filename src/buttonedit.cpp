@@ -49,14 +49,14 @@ ButtonEdit::ButtonEdit(QString labelText, QWidget *parent)
     layout->addWidget(label);
     cbMode = new QComboBox();
     cbMode->setEditable(false);
-    cbMode->addItem(tr("Key"), ModeKey);
-    cbMode->addItem(tr("Button"), ModeButton);
-    cbMode->addItem(tr("Command"), ModeCommand);
-    cbMode->addItem(tr("DPI"), ModeDpi);
-    cbMode->addItem(tr("Macro"), ModeMacro);
-    cbMode->addItem(tr("Sequence"), ModeSequence);
-    cbMode->addItem(tr("Off"), ModeOff);
-    cbMode->addItem(tr("Custom"), ModeCustom);
+    cbMode->addItem(tr("Key"), MS735::EventKey);
+    cbMode->addItem(tr("Button"), MS735::EventButton);
+    cbMode->addItem(tr("Command"), MS735::EventCommand);
+    cbMode->addItem(tr("Profile"), MS735::EventProfile);
+    cbMode->addItem(tr("Macro"), MS735::EventMacro);
+    cbMode->addItem(tr("Sequence"), MS735::EventSequence);
+    cbMode->addItem(tr("Off"), MS735::EventOff);
+    cbMode->addItem(tr("Custom"), MS735::EventCustom);
     layout->addWidget(cbMode);
     label->setBuddy(cbMode);
     connect(cbMode, SIGNAL(currentIndexChanged(int)), this, SLOT(onModeChanged(int)));
@@ -107,13 +107,13 @@ ButtonEdit::ButtonEdit(QString labelText, QWidget *parent)
     layout->addWidget(editCommand);
 
     //
-    // DPI
+    // Profile
     //
-    cbDpi = new QComboBox;
-    cbDpi->addItem(tr("DPI +"), MS735::DpiNext);
-    cbDpi->addItem(tr("DPI -"), MS735::DpiPrevious);
-    cbDpi->addItem(tr("DPI cycle"), MS735::DpiCycle);
-    layout->addWidget(cbDpi);
+    cbProfile = new QComboBox;
+    cbProfile->addItem(tr("Next"), MS735::NextProfile);
+    cbProfile->addItem(tr("Previous"), MS735::PreviousProfile);
+    cbProfile->addItem(tr("Cycle"), MS735::CycleProfile);
+    layout->addWidget(cbProfile);
 
     //
     // Macro
@@ -159,7 +159,7 @@ void ButtonEdit::setValue(quint32 value)
     // Actually, there is no 'Off' mode. It is mode 'key' with scan code 00
     if (value == 0)
     {
-        mode = ModeOff;
+        mode = MS735::EventOff;
     }
 
     // Hide everything, will show some ot them later
@@ -167,7 +167,7 @@ void ButtonEdit::setValue(quint32 value)
 
     switch (mode)
     {
-    case ModeKey:
+    case MS735::EventKey:
         cbModifiers->setMask(arg1);
         cbModifiers->setVisible(true);
         editScans[0]->setValue(arg2);
@@ -176,23 +176,23 @@ void ButtonEdit::setValue(quint32 value)
         editScans[1]->setVisible(true);
     break;
 
-    case ModeButton:
+    case MS735::EventButton:
         cbButton->setValue(arg2);
         cbButton->setVisible(true);
         break;
 
-    case ModeCommand:
+    case MS735::EventCommand:
         // Command is 16-bit wide
         editCommand->setValue(0xFFFF & (value >> 16));
         editCommand->setVisible(true);
         break;
 
-    case ModeDpi:
-        cbDpi->setCurrentIndex(adjust(arg2, MS735::DpiNext, MS735::DpiCycle) - MS735::DpiNext);
-        cbDpi->setVisible(true);
+    case MS735::EventProfile:
+        cbProfile->setCurrentIndex(adjust(arg2, MS735::NextProfile, MS735::CycleProfile) - MS735::NextProfile);
+        cbProfile->setVisible(true);
         break;
 
-    case ModeMacro:
+    case MS735::EventMacro:
         spinMacroIndex->setValue(adjust(arg2, MS735::MinMacroNum, MS735::MaxMacroNum));
         spinMacroIndex->setVisible(true);
         labelRepeat->setVisible(true);
@@ -200,7 +200,7 @@ void ButtonEdit::setValue(quint32 value)
         cbRepeatMode->setVisible(true);
         break;
 
-    case ModeSequence:
+    case MS735::EventSequence:
         cbButton->setCurrentIndex(adjust(arg1, MS735::MouseLeftButton, MS735::WheelDownButton) - MS735::MouseLeftButton);
         cbButton->setVisible(true);
         spinCount->setValue(arg3);
@@ -209,12 +209,12 @@ void ButtonEdit::setValue(quint32 value)
         spinDelay->setVisible(true);
         break;
 
-    case ModeOff:
+    case MS735::EventOff:
         // Everything is already hidden, so nothing to do.
         break;
 
     default:
-        mode = ModeCustom;
+        mode = MS735::EventCustom;
         editCustom->setVisible(true);
         break;
     }
@@ -225,28 +225,33 @@ void ButtonEdit::setValue(quint32 value)
     setUpdatesEnabled(true);
 }
 
-quint32 ButtonEdit::value() const
+void ButtonEdit::highlight(bool on)
 {
-    return extractValue((Mode)cbMode->currentData().toUInt());
+    label->setStyleSheet(on ? QString("color:HighlightText;font-weight:bold") : QString());
 }
 
-quint32 ButtonEdit::extractValue(Mode mode) const
+quint32 ButtonEdit::value() const
+{
+    return extractValue(cbMode->currentData().toUInt());
+}
+
+quint32 ButtonEdit::extractValue(int mode) const
 {
     quint8 arg1 = 0, arg2 = 0, arg3 = 0;
 
     switch (mode)
     {
-    case ModeKey:
+    case MS735::EventKey:
         arg1 = cbModifiers->mask();
         arg2 = editScans[0]->value();
         arg3 = editScans[1]->value();
         break;
 
-    case ModeButton:
+    case MS735::EventButton:
         arg2 = cbButton->value();
         break;
 
-    case ModeCommand:
+    case MS735::EventCommand:
     {
         int value = editCommand->value();
         arg2 = 0xFF & value;
@@ -254,25 +259,25 @@ quint32 ButtonEdit::extractValue(Mode mode) const
     }
     break;
 
-    case ModeDpi:
-        arg2 = cbDpi->currentIndex() + MS735::DpiNext;
+    case MS735::EventProfile:
+        arg2 = cbProfile->currentIndex() + MS735::NextProfile;
         break;
 
-    case ModeMacro:
+    case MS735::EventMacro:
         arg2 = spinMacroIndex->value();
         arg1 = cbRepeatMode->currentIndex();
         break;
 
-    case ModeSequence:
+    case MS735::EventSequence:
         arg1 = cbButton->currentIndex() + MS735::MouseLeftButton;
         arg3 = spinCount->value();
         arg2 = spinDelay->value();
         break;
 
-    case ModeOff:
+    case MS735::EventOff:
         return 0;
 
-    case ModeCustom:
+    case MS735::EventCustom:
         return editCustom->text().replace(" ", "").toUInt(nullptr, 16);
 
     default:
@@ -287,10 +292,10 @@ void ButtonEdit::onModeChanged(int idx)
 {
     setUpdatesEnabled(false);
     auto newMode = cbMode->itemData(idx).toUInt();
-    auto oldMode = (Mode)editCustom->text().right(2).toUInt(nullptr, 16);
+    auto oldMode = editCustom->text().right(2).toUInt(nullptr, 16);
     quint32 value = extractValue(oldMode) & ~0xFF;
 
-    if (newMode == ModeKey && value == 0)
+    if (newMode == MS735::EventKey && value == 0)
     {
         // Conversion from OFF to KEY
         value = 0x2C << 16;
@@ -298,7 +303,7 @@ void ButtonEdit::onModeChanged(int idx)
 
     hideWidgets();
 
-    if (newMode == ModeCustom)
+    if (newMode == MS735::EventCustom)
     {
         editCustom->setText(QString("%1 %2 %3 %4")
                             .arg(0xFF & value >> 24, 2, 16, QChar('0'))
@@ -307,7 +312,7 @@ void ButtonEdit::onModeChanged(int idx)
                             .arg(oldMode, 2, 16, QChar('0')));
         editCustom->show();
     }
-    else if (newMode != ModeOff)
+    else if (newMode != MS735::EventOff)
     {
         setValue(value | newMode);
     }

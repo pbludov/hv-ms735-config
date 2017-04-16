@@ -25,6 +25,7 @@ class QHIDDevicePrivate;
 class QHIDDevice : public QObject
 {
     Q_PROPERTY(int writeDelay READ writeDelay WRITE setWriteDelay)
+    Q_PROPERTY(int readTimeout READ readTimeout WRITE setReadTimeout)
 
     Q_OBJECT
     Q_DECLARE_PRIVATE(QHIDDevice)
@@ -41,14 +42,19 @@ public:
 
     int write(char report, const char *buffer, int length);
     int read(char *buffer, int length);
+    int read(char *buffer, int length, unsigned int timeout);
 
-    unsigned long writeDelay() const;
-    void setWriteDelay(unsigned long value);
+    unsigned int readTimeout() const;
+    void setReadTimeout(unsigned int value);
+
+    unsigned int writeDelay() const;
+    void setWriteDelay(unsigned int value);
 
 protected:
     int inputBufferLength;
     int outputBufferLength;
-    unsigned long writeDelayValue;
+    unsigned int writeDelayValue;
+    unsigned int readTimeoutValue;
     class QHIDDevicePrivate *d_ptr;
 };
 

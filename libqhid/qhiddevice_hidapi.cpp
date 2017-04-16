@@ -186,9 +186,46 @@ static void hidapiMissingFeatures(
                 }
             }
         }
-        libusb_close(handle);
 
+        libusb_close(handle);
         libusb_free_config_descriptor(confDesc);
+        break;
+    }
+
+    libusb_free_device_list(devs, 1);
+    libusb_exit(ctx);
+}
+
+static void resetDevice(int vendorId, int deviceId)
+{
+    libusb_context *ctx = nullptr;
+    int rc = libusb_init(&ctx);
+    if (LIBUSB_SUCCESS != rc)
+    {
+        qWarning() << "libusb_init failed" << rc << libusb_error_name(rc);
+        return;
+    }
+
+    libusb_device **devs;
+    auto count = libusb_get_device_list(ctx, &devs);
+
+    for (ssize_t i = 0; i < count; ++i)
+    {
+        auto dev = devs[i];
+        libusb_device_descriptor desc;
+
+        if (libusb_get_device_descriptor(dev, &desc) < 0)
+            continue;
+
+        if (desc.idVendor != vendorId || desc.idProduct != deviceId)
+            continue;
+
+        libusb_device_handle *handle;
+        if (libusb_open(dev, &handle) >= 0)
+        {
+            libusb_reset_device(handle);
+            libusb_close(handle);
+        }
         break;
     }
 
@@ -199,6 +236,8 @@ static void hidapiMissingFeatures(
 
 QHIDDevicePrivate::QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int deviceId, int usagePage)
     : device(nullptr)
+    , vendorId(vendorId)
+    , deviceId(deviceId)
     , q_ptr(q_ptr)
 {
     if (hid_init() != 0)
@@ -244,6 +283,11 @@ QHIDDevicePrivate::~QHIDDevicePrivate()
     {
         hid_close(device);
         device = nullptr;
+
+#ifdef WITH_LIBUSB_1_0
+        // Until reset the keyboard interface will be ignored by the kernel.
+        resetDevice(vendorId, deviceId);
+#endif
     }
 
     hid_exit();
@@ -266,10 +310,10 @@ int QHIDDevicePrivate::getFeatureReport(char *buffer, int length)
 
 int QHIDDevicePrivate::write(const char *buffer, int length)
 {
-    return hid_write(device, (const unsigned char *)buffer, length);
+    return device == nullptr ? -1 : hid_write(device, (const unsigned char *)buffer, length);
 }
 
-int QHIDDevicePrivate::read(char *buffer, int length)
+int QHIDDevicePrivate::read(char *buffer, int length, int timeout)
 {
-    return hid_read_timeout(device, (unsigned char *)buffer, length, 30000);
+    return device == nullptr ? -1 : hid_read_timeout(device, (unsigned char *)buffer, length, timeout);
 }

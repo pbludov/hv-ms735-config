@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
                 return 0;
             }
 
-            QThread::usleep(1000);
+            QThread::msleep(1);
         }
 
         qWarning() << "Failed to unbrick the device. You have to disassemble it and link RESET pin to the ground";

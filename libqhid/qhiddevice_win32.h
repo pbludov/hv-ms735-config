@@ -38,10 +38,11 @@ public:
     int getFeatureReport(char *buffer, int length);
 
     int write(const char *buffer, int length);
-    int read(char *buffer, int length);
+    int read(char *buffer, int length, unsigned int timeout);
 
 private:
     HANDLE hDevice;
+    OVERLAPPED overlapped;
     QHIDDevice *q_ptr;
 };
 

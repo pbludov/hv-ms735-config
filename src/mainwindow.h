@@ -39,9 +39,11 @@ protected:
 
 public slots:
     void onSave();
+    void onProfileChanged(int, int profile);
+    void onButtonsPressed(int mask);
+    void onMiceConnected(bool connected);
 
 private slots:
-    void onMiceConnected(bool connected);
     void onPreparePage(int idx);
 
 private:

@@ -25,7 +25,8 @@
 
 #define VENDOR 0x04D9
 #define PRODUCT 0xA100
-#define USAGE_PAGE 0xFF00
+#define GENERIC_USAGE_PAGE 0xFF00
+#define KEYBOARD_USAGE_PAGE 0xFF01
 
 #define PAGE_SIZE 128
 
@@ -50,22 +51,34 @@ static char crc(const QByteArray data)
 
 MS735::MS735(QObject *parent)
     : QObject(parent)
-    , device(new QHIDDevice(VENDOR, PRODUCT, USAGE_PAGE, this))
+    , device(new QHIDDevice(VENDOR, PRODUCT, GENERIC_USAGE_PAGE, this))
+    , eventDevice(new QHIDDevice(VENDOR, PRODUCT, KEYBOARD_USAGE_PAGE))
     , monitor(new QHIDMonitor(VENDOR, PRODUCT, this))
+    , timerId(0)
+
 {
     connect(monitor, SIGNAL(deviceArrival(QString)), this, SLOT(deviceArrival(QString)));
     connect(monitor, SIGNAL(deviceRemove()), this, SLOT(deviceRemove()));
 
     // On osx open may fail on first try with error 60.
-    for (int retry = 0; retry < 10 && (!device->isValid() || report(CmdEventMask, '\x0').isNull()); ++retry)
+    for (int retry = 0; retry < 5 && report(CmdEventMask, EventAll).isNull(); ++retry)
     {
-        QThread::usleep(10000UL);
-        device->open(VENDOR, PRODUCT, USAGE_PAGE);
+        QThread::msleep(20);
+        device->open(VENDOR, PRODUCT, GENERIC_USAGE_PAGE);
+        eventDevice->open(VENDOR, PRODUCT, KEYBOARD_USAGE_PAGE);
     }
+
+    timerId = startTimer(10);
 }
 
 MS735::~MS735()
 {
+    if (timerId)
+    {
+        killTimer(timerId);
+        timerId = 0;
+    }
+
     foreach (auto page, cache)
     {
         delete[] page.second;
@@ -75,7 +88,8 @@ MS735::~MS735()
 void MS735::deviceArrival(const QString &path)
 {
     qCInfo(UsbIo) << "Detected device arrival at" << path;
-    connectChanged(device->open(VENDOR, PRODUCT, USAGE_PAGE));
+    connectChanged(device->open(VENDOR, PRODUCT, GENERIC_USAGE_PAGE));
+    eventDevice->open(VENDOR, PRODUCT, KEYBOARD_USAGE_PAGE);
 }
 
 void MS735::deviceRemove()
@@ -132,7 +146,7 @@ char *MS735::readPage(Command page, int idx)
     if (resp == nullptr || resp.length() < 4 || resp.at(1) != (char)cmd || resp.at(2) != idx
         || resp.at(3) != (char)PAGE_SIZE)
     {
-        qCWarning(UsbIo) << "readPage: invalid response";
+        qCWarning(UsbIo) << "readPage: invalid response:" << resp.toHex();
         return nullptr;
     }
 
@@ -487,10 +501,51 @@ bool MS735::ping()
 bool MS735::switchToFirmwareUpgradeMode()
 {
     // Force reconnect to the device
-    device->open(VENDOR, PRODUCT, USAGE_PAGE);
+    device->open(VENDOR, PRODUCT, GENERIC_USAGE_PAGE);
 
     auto resp = report(CmdFirmwareMode, '\xAA', '\x55', '\xCC', '\x33', '\xBB', '\x99');
     return !resp.isNull() && resp.length() > 1 && resp.at(1) == (char)CmdFirmwareMode;
+}
+
+void MS735::timerEvent(QTimerEvent *evt)
+{
+    QObject::timerEvent(evt);
+
+    char buffer[4];
+    while (eventDevice->read(buffer, sizeof(buffer), 20) == sizeof(buffer))
+    {
+        qCDebug(UsbIo) << "event" << QByteArray(buffer, 4).toHex();
+        switch (buffer[0])
+        {
+        case 1:
+            keysPressed(0xFF & buffer[1], 0xFF & buffer[2], 0xFF & buffer[3]);
+            return;
+        case 6:
+            switch (0xFF & buffer[1])
+            {
+            case EventKey:
+                endMacro();
+                return;
+            case EventCommand:
+                genericCommand((0xFF & buffer[2]) | (0xFF & buffer[3]) << 8);
+                return;
+            case EventHorizontalScrol:
+                horizontalScroll(buffer[3]);
+                return;
+            case EventProfile:
+                profileChanged(buffer[2], buffer[3]);
+                return;
+            case EventMacro:
+                playMacro(0xFF & buffer[3]);
+                return;
+            case EventOff:
+                buttonsPressed((0xFF & buffer[2]) | (0xFF & buffer[3]) << 8);
+                return;
+            }
+        }
+
+        qCDebug(UsbIo) << "???" << QByteArray(buffer, 4).toHex();
+    }
 }
 
 bool MS735::unsavedChanges()

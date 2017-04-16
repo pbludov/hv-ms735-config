@@ -30,7 +30,8 @@ QHIDDevice::QHIDDevice(int vendorId, int deviceId, int usagePage, QObject *paren
     : QObject(parent)
     , inputBufferLength(64)
     , outputBufferLength(64)
-    , writeDelayValue(20000UL)
+    , writeDelayValue(20)
+    , readTimeoutValue(3000)
     , d_ptr(new QHIDDevicePrivate(this, vendorId, deviceId, usagePage))
 {
 }
@@ -60,7 +61,7 @@ int QHIDDevice::sendFeatureReport(const char *report, int length)
 {
     Q_D(QHIDDevice);
     auto ret = d->sendFeatureReport(report, length);
-    QThread::usleep(writeDelayValue);
+    QThread::msleep(writeDelayValue);
     return ret;
 }
 
@@ -78,14 +79,14 @@ int QHIDDevice::write(char report, const char *buffer, int length)
     while (length > 0)
     {
         QByteArray chunk;
-        chunk.reserve(outputBufferLength + 1);
+        chunk.reserve(outputBufferLength);
         chunk.append(report).append(buffer + offset, qMin(length, outputBufferLength));
         auto written = d->write(chunk.cbegin(), chunk.size());
 
         if (written <= 0)
             return written;
 
-        QThread::usleep(writeDelayValue);
+        QThread::msleep(writeDelayValue);
         offset += written - 1;
         length -= written - 1;
     }
@@ -95,12 +96,17 @@ int QHIDDevice::write(char report, const char *buffer, int length)
 
 int QHIDDevice::read(char *buffer, int length)
 {
+    return read(buffer, length, readTimeoutValue);
+}
+
+int QHIDDevice::read(char *buffer, int length, unsigned int readTimeout)
+{
     Q_D(QHIDDevice);
     int offset = 0;
 
     while (length > 0)
     {
-        auto read = d->read(buffer + offset, qMin(length, inputBufferLength));
+        auto read = d->read(buffer + offset, length, readTimeout);
 
         if (read <= 0)
             return read;
@@ -112,12 +118,22 @@ int QHIDDevice::read(char *buffer, int length)
     return offset;
 }
 
-unsigned long QHIDDevice::writeDelay() const
+unsigned int QHIDDevice::readTimeout() const
+{
+    return readTimeout();
+}
+
+void QHIDDevice::setReadTimeout(unsigned int value)
+{
+    readTimeoutValue = value;
+}
+
+unsigned int QHIDDevice::writeDelay() const
 {
     return writeDelayValue;
 }
 
-void QHIDDevice::setWriteDelay(unsigned long value)
+void QHIDDevice::setWriteDelay(unsigned int value)
 {
     writeDelayValue = value;
 }

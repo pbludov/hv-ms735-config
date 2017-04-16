@@ -55,6 +55,15 @@ class MS735 : public QObject
         CmdGetReportRateDivider = CmdReportRateDivider | CmdFlagGet,
     };
 
+    enum EventMask
+    {
+        EventHorizontalScroll = 0x01,
+        EventGenericCommand = 0x02,
+        EventButtons = 0x04,
+        EventMacroAndProfile = 0x08,
+        EventAll = 0x0F,
+    };
+
     enum RegisterOffset
     {
         // 8E 00 3F(01) 00 42 03 FE 0F
@@ -92,6 +101,19 @@ public:
         MaxLeds = 4,
         DpiMul = 100,
         DpiAdd = 1,
+    };
+
+    enum Event
+    {
+        EventKey = 0,
+        EventButton = 1,
+        EventCommand = 3,
+        EventHorizontalScrol = 4,
+        EventProfile = 7,
+        EventMacro = 9,
+        EventSequence = 10,
+        EventCustom = 0xFE,
+        EventOff = 0xFF,
     };
 
     enum ButtonIndex
@@ -153,12 +175,12 @@ public:
         LightSourceColors1_5
     };
 
-    enum DpiCommand
+    enum ProfileChange
     {
-        DpiNext = 1,
-        DpiPrevious,
+        NextProfile = 1,
+        PreviousProfile,
         // Same as next, but wpars at maximum
-        DpiCycle,
+        CycleProfile,
     };
 
     enum MacroRepeatMode
@@ -231,8 +253,18 @@ public:
     bool restoreConfig(class QIODevice *storage);
     bool switchToFirmwareUpgradeMode();
 
+protected:
+    virtual void timerEvent(QTimerEvent *evt);
+
 signals:
     void connectChanged(bool connected);
+    void profileChanged(int source, int profile);
+    void keysPressed(int modifiers, int key1, int key2);
+    void buttonsPressed(int mask);
+    void horizontalScroll(int delta);
+    void playMacro(int index);
+    void endMacro();
+    void genericCommand(int index);
 
 private slots:
     void deviceArrival(const QString &path);
@@ -250,7 +282,9 @@ private:
     void writeColor(RegisterOffset offset, int index, int value);
 
     class QHIDDevice *device;
+    class QHIDDevice *eventDevice;
     class QHIDMonitor *monitor;
+    int timerId;
 
     std::map<int, char *> cache;
     std::map<int, bool> dirtyPages;

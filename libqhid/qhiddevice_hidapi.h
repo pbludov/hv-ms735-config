@@ -38,10 +38,12 @@ public:
     int getFeatureReport(char *buffer, int length);
 
     int write(const char *buffer, int length);
-    int read(char *buffer, int length);
+    int read(char *buffer, int length, int timeout);
 
 private:
     hid_device *device;
+    int vendorId;
+    int deviceId;
     QHIDDevice *q_ptr;
 };
 

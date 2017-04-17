@@ -9,7 +9,7 @@ URL: https://github.com/pbludov/hv-ms735-config
 Vendor: Pavel Bludov <pbludov@gmail.com>
 Packager: Pavel Bludov <pbludov@gmail.com>
 
-BuildRequires: make, gcc-c++, libusb1-devel, libhidapi-devel
+BuildRequires: make, gcc-c++, libusb1-devel, hidapi-devel
 
 %{?rhl:Requires: qt5-qtbase}
 %{?rhl:BuildRequires: qt5-qtbase-devel}
@@ -41,6 +41,11 @@ make install INSTALL_ROOT="%buildroot";
 %{_bindir}/%{name}
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/icons/hicolor/48x48/apps/%{name}.png
+
+%posttrans
+/bin/touch --no-create %{_datadir}/icons/hicolor &>/dev/null
+/usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
+/usr/bin/update-desktop-database &> /dev/null || :
 
 %changelog
 * Sat Apr 15 2017 Pavel Bludov <pbludov@gmail.com>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?define ProductBuild    = "1.0.1" ?>
+<?define ProductBuild    = "1.1.0" ?>
 <?define ProductRevision = "0" ?>
 <?define ProductName     = "hv-ms735-config" ?>
 <?define Manufacturer    = "pbludov@gmail.com" ?>

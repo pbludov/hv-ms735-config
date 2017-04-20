@@ -1,7 +1,7 @@
 Summary: hv-ms735-config
 Name: hv-ms735-config
 Provides: hv-ms735-config
-Version: 1.0.1
+Version: 1.1.0
 Release: 1%{?dist}
 License: LGPL-2.1+
 Source: %{name}.tar.gz
@@ -48,6 +48,11 @@ make install INSTALL_ROOT="%buildroot";
 /usr/bin/update-desktop-database &> /dev/null || :
 
 %changelog
+* Thu Apr 23 2017 Pavel Bludov <pbludov@gmail.com>
++ Version 1.1.0
+- Mouse events.
+- Finaly fix MacOS mouse connectivity issue.
+
 * Sat Apr 15 2017 Pavel Bludov <pbludov@gmail.com>
 + Version 1.0.1
 - USB report rate.

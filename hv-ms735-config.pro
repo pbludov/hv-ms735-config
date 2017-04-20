@@ -28,7 +28,7 @@ include (libqhid/libqhid.pri)
 
 TEMPLATE = app
 TARGET   = hv-ms735-config
-VERSION  = 1.0.1
+VERSION  = 1.1.0
 
 DEFINES += PRODUCT_NAME=\\\"$$TARGET\\\" \
     PRODUCT_VERSION=\\\"$$VERSION\\\"

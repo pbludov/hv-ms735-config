@@ -62,15 +62,10 @@ MS735::MS735(QObject *parent)
     connect(monitor, SIGNAL(deviceArrival(QString)), this, SLOT(deviceArrival(QString)));
     connect(monitor, SIGNAL(deviceRemove()), this, SLOT(deviceRemove()));
 
-    // On osx open may fail on first try with error 60.
-    for (int retry = 0; retry < 5 && report(CmdEventMask, EventAll).isNull(); ++retry)
+    if (eventDevice->isValid() && !report(CmdEventMask, EventAll).isNull())
     {
-        QThread::msleep(20);
-        device->open(VENDOR, PRODUCT, GENERIC_USAGE_PAGE, GENERIC_USAGE);
-        eventDevice->open(VENDOR, PRODUCT, EVENT_USAGE_PAGE, EVENT_USAGE);
+        timerId = startTimer(10);
     }
-
-    timerId = startTimer(10);
 }
 
 MS735::~MS735()
@@ -90,13 +85,27 @@ MS735::~MS735()
 void MS735::deviceArrival(const QString &path)
 {
     qCInfo(UsbIo) << "Detected device arrival at" << path;
-    connectChanged(device->open(VENDOR, PRODUCT, GENERIC_USAGE_PAGE, GENERIC_USAGE));
-    eventDevice->open(VENDOR, PRODUCT, EVENT_USAGE_PAGE, EVENT_USAGE);
+    auto connected = device->open(VENDOR, PRODUCT, GENERIC_USAGE_PAGE, GENERIC_USAGE) && ping();
+    connectChanged(connected);
+    if (connected)
+    {
+        eventDevice->open(VENDOR, PRODUCT, EVENT_USAGE_PAGE, EVENT_USAGE);
+
+        if (eventDevice->isValid() && !report(CmdEventMask, EventAll).isNull())
+        {
+            timerId = startTimer(10);
+        }
+    }
 }
 
 void MS735::deviceRemove()
 {
     qCInfo(UsbIo) << "Detected device removal";
+    if (timerId)
+    {
+        killTimer(timerId);
+        timerId = 0;
+    }
     connectChanged(false);
 }
 

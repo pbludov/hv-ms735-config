@@ -23,10 +23,12 @@
 #include <QRgb>
 #include <QThread>
 
-#define VENDOR 0x04D9
+#define VENDOR  0x04D9
 #define PRODUCT 0xA100
 #define GENERIC_USAGE_PAGE 0xFF00
-#define KEYBOARD_USAGE_PAGE 0xFF01
+#define GENERIC_USAGE      0xFF00
+#define EVENT_USAGE_PAGE   0xFF01
+#define EVENT_USAGE        0x0001
 
 #define PAGE_SIZE 128
 
@@ -51,8 +53,8 @@ static char crc(const QByteArray data)
 
 MS735::MS735(QObject *parent)
     : QObject(parent)
-    , device(new QHIDDevice(VENDOR, PRODUCT, GENERIC_USAGE_PAGE, this))
-    , eventDevice(new QHIDDevice(VENDOR, PRODUCT, KEYBOARD_USAGE_PAGE))
+    , device(new QHIDDevice(VENDOR, PRODUCT, GENERIC_USAGE_PAGE, GENERIC_USAGE, this))
+    , eventDevice(new QHIDDevice(VENDOR, PRODUCT, EVENT_USAGE_PAGE, EVENT_USAGE, this))
     , monitor(new QHIDMonitor(VENDOR, PRODUCT, this))
     , timerId(0)
 
@@ -64,8 +66,8 @@ MS735::MS735(QObject *parent)
     for (int retry = 0; retry < 5 && report(CmdEventMask, EventAll).isNull(); ++retry)
     {
         QThread::msleep(20);
-        device->open(VENDOR, PRODUCT, GENERIC_USAGE_PAGE);
-        eventDevice->open(VENDOR, PRODUCT, KEYBOARD_USAGE_PAGE);
+        device->open(VENDOR, PRODUCT, GENERIC_USAGE_PAGE, GENERIC_USAGE);
+        eventDevice->open(VENDOR, PRODUCT, EVENT_USAGE_PAGE, EVENT_USAGE);
     }
 
     timerId = startTimer(10);
@@ -88,8 +90,8 @@ MS735::~MS735()
 void MS735::deviceArrival(const QString &path)
 {
     qCInfo(UsbIo) << "Detected device arrival at" << path;
-    connectChanged(device->open(VENDOR, PRODUCT, GENERIC_USAGE_PAGE));
-    eventDevice->open(VENDOR, PRODUCT, KEYBOARD_USAGE_PAGE);
+    connectChanged(device->open(VENDOR, PRODUCT, GENERIC_USAGE_PAGE, GENERIC_USAGE));
+    eventDevice->open(VENDOR, PRODUCT, EVENT_USAGE_PAGE, EVENT_USAGE);
 }
 
 void MS735::deviceRemove()
@@ -501,7 +503,7 @@ bool MS735::ping()
 bool MS735::switchToFirmwareUpgradeMode()
 {
     // Force reconnect to the device
-    device->open(VENDOR, PRODUCT, GENERIC_USAGE_PAGE);
+    device->open(VENDOR, PRODUCT, GENERIC_USAGE_PAGE, GENERIC_USAGE);
 
     auto resp = report(CmdFirmwareMode, '\xAA', '\x55', '\xCC', '\x33', '\xBB', '\x99');
     return !resp.isNull() && resp.length() > 1 && resp.at(1) == (char)CmdFirmwareMode;

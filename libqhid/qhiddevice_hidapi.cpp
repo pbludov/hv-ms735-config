@@ -26,10 +26,11 @@
 #ifdef WITH_LIBUSB_1_0
 #include <libusb.h>
 
-static bool findUsagePage(int usagePage, const uint8_t *desc, size_t size)
+static bool findUsage(int usagePage, int usage, const uint8_t *desc, size_t size)
 {
     unsigned int i = 0;
     int dataLen, keySize;
+    bool usageMatch = false, pageMatch = false;
 
     while (i < size)
     {
@@ -57,7 +58,8 @@ static bool findUsagePage(int usagePage, const uint8_t *desc, size_t size)
             keySize = 1;
         }
 
-        if ((key & 0xfc) == 0x04)
+        auto tag = (key & 0xfc);
+        if (tag == 0x04 || tag == 0x08)
         {
             if (i + dataLen >= size)
             {
@@ -65,14 +67,19 @@ static bool findUsagePage(int usagePage, const uint8_t *desc, size_t size)
                 return false;
             }
 
-            int page = 0;
+            int value = 0;
             for (int offset = dataLen; offset > 0; --offset)
             {
-                page <<= 8;
-                page |= desc[i + offset];
+                value <<= 8;
+                value |= desc[i + offset];
             }
 
-            if (page == usagePage)
+            if (tag == 0x04 && value == usagePage)
+                pageMatch = true;
+            else if (tag == 0x08 && value == usage)
+                usageMatch = true;
+
+            if (pageMatch && usageMatch)
                 return true;
         }
 
@@ -84,7 +91,7 @@ static bool findUsagePage(int usagePage, const uint8_t *desc, size_t size)
 }
 
 static void hidapiMissingFeatures(
-    int vendorId, int deviceId, int usagePage, int *interfaceNumber, int *inBufferLength, int *outBufferLength)
+    int vendorId, int deviceId, int usagePage, int usage, int *interfaceNumber, int *inBufferLength, int *outBufferLength)
 {
     libusb_context *ctx = nullptr;
     int rc = libusb_init(&ctx);
@@ -147,7 +154,7 @@ static void hidapiMissingFeatures(
             }
             else
             {
-                match = findUsagePage(usagePage, buffer, rc);
+                match = findUsage(usagePage, usage, buffer, rc);
             }
 
             if (claimed)
@@ -234,7 +241,7 @@ static void resetDevice(int vendorId, int deviceId)
 }
 #endif
 
-QHIDDevicePrivate::QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int deviceId, int usagePage)
+QHIDDevicePrivate::QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int deviceId, int usagePage, int usage)
     : device(nullptr)
     , vendorId(vendorId)
     , deviceId(deviceId)
@@ -249,13 +256,13 @@ QHIDDevicePrivate::QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int device
     int interfaceNumber = -1;
 #ifdef WITH_LIBUSB_1_0
     hidapiMissingFeatures(
-        vendorId, deviceId, usagePage, &interfaceNumber, &q_ptr->inputBufferLength, &q_ptr->outputBufferLength);
+        vendorId, deviceId, usagePage, usage, &interfaceNumber, &q_ptr->inputBufferLength, &q_ptr->outputBufferLength);
 #endif
     auto devices = hid_enumerate(vendorId, deviceId);
 
     for (auto dev = devices; dev != nullptr; dev = dev->next)
     {
-        if ((dev->usage_page > 0 && dev->usage_page == usagePage)
+        if ((dev->usage_page > 0 && dev->usage_page == usagePage && dev->usage == usage)
             || (dev->interface_number >= 0 && dev->interface_number == interfaceNumber))
         {
             device = hid_open_path(dev->path);

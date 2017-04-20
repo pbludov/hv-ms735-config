@@ -26,7 +26,7 @@ extern "C" {
 #include <Hidsdi.h>
 }
 
-QHIDDevicePrivate::QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int deviceId, int usagePage)
+QHIDDevicePrivate::QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int deviceId, int usagePage, int usage)
     : hDevice(INVALID_HANDLE_VALUE)
     , q_ptr(q_ptr)
 {
@@ -108,7 +108,7 @@ QHIDDevicePrivate::QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int device
                 auto hr = HidP_GetCaps(ppData, &caps);
                 if (hr == HIDP_STATUS_SUCCESS)
                 {
-                    if (caps.UsagePage == usagePage)
+                    if (caps.UsagePage == usagePage && caps.Usage == usage)
                     {
                         // For Windows it's wMaxPacketSize + 1 (report byte), so we decrement.
                         q_ptr->inputBufferLength = caps.InputReportByteLength;

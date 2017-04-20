@@ -29,7 +29,7 @@ class QHIDDevicePrivate : public QObject
     Q_DECLARE_PUBLIC(QHIDDevice);
 
 public:
-    QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int deviceId, int usagePage);
+    QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int deviceId, int usagePage, int usage);
     ~QHIDDevicePrivate();
 
     bool isValid() const;

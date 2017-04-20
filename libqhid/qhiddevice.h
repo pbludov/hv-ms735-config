@@ -31,10 +31,10 @@ class QHIDDevice : public QObject
     Q_DECLARE_PRIVATE(QHIDDevice)
 
 public:
-    QHIDDevice(int vendorId, int deviceId, int usagePage, QObject *parent = 0);
+    QHIDDevice(int vendorId, int deviceId, int usagePage, int usage, QObject *parent = 0);
     ~QHIDDevice();
 
-    bool open(int vendorId, int deviceId, int usagePage);
+    bool open(int vendorId, int deviceId, int usagePage, int usage);
     bool isValid() const;
 
     int sendFeatureReport(const char *report, int length);

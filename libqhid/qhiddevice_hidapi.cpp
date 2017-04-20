@@ -135,23 +135,23 @@ static void hidapiMissingFeatures(
                 detached = true;
             }
 
-            if (libusb_claim_interface(handle, iface) >= 0)
+            auto claimed = libusb_claim_interface(handle, iface) >= 0;
+
+            // Get the HID Report Descriptor.
+            rc = libusb_control_transfer(handle, LIBUSB_ENDPOINT_IN | LIBUSB_RECIPIENT_INTERFACE,
+                LIBUSB_REQUEST_GET_DESCRIPTOR, LIBUSB_DT_REPORT << 8, iface, buffer, sizeof(buffer), 1000);
+
+            if (rc < 0)
             {
-                // Get the HID Report Descriptor.
-                rc = libusb_control_transfer(handle, LIBUSB_ENDPOINT_IN | LIBUSB_RECIPIENT_INTERFACE,
-                    LIBUSB_REQUEST_GET_DESCRIPTOR, LIBUSB_DT_REPORT << 8, iface, buffer, sizeof(buffer), 1000);
-
-                if (rc < 0)
-                {
-                    qWarning() << "Failed to read HID report descriptor" << rc << libusb_error_name(rc);
-                }
-                else
-                {
-                    match = findUsagePage(usagePage, buffer, rc);
-                }
-
-                libusb_release_interface(handle, iface);
+                qWarning() << "Failed to read HID report descriptor" << rc << libusb_error_name(rc);
             }
+            else
+            {
+                match = findUsagePage(usagePage, buffer, rc);
+            }
+
+            if (claimed)
+                libusb_release_interface(handle, iface);
 
             if (match)
             {

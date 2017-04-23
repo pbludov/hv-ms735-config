@@ -7,11 +7,11 @@ hv-ms735-config (1.1.0-1xenial1) xenial; urgency=medium
 
 hv-ms735-config (1.0.1-1xenial1) xenial; urgency=medium
 
-   * USB report rate.
-   * Configurable delay for the neon illumination.
-   * More stable MacOS version.
+  * USB report rate.
+  * Configurable delay for the neon illumination.
+  * More stable MacOS version.
 
-  -- Pavel Bludov <pbludov@gmail.com>  Sat, 15 Apr 2017 22:39:11 +0800
+ -- Pavel Bludov <pbludov@gmail.com>  Sat, 15 Apr 2017 22:39:11 +0800
 
 hv-ms735-config (1.0.0-1xenial1) xenial; urgency=medium
 

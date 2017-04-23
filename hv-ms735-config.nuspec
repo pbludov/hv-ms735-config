@@ -3,18 +3,26 @@
   <metadata>
     <id>hv-ms735-config</id>
     <version>1.1.0</version>
-    <authors>Pavel Bludov</authors>
-    <title>HV MS735 configuration utility</title>
-    <summary>HAVIT Magic Eagle configuration utility</summary>
-    <description>HAVIT Magic Eagle mouse unofficial configuration utility. Allows you to configure the buttons and profiles of your device.</description>
-    <projectUrl>https://github.com/pbludov/hv-ms735-config/</projectUrl>
     <tags>admin havit hv-ms735</tags>
     <copyright>Pavel Bludov</copyright>
+    <authors>Pavel Bludov</authors>
+    <owners>Pavel Bludov</owners>
+    <title>HV MS735 configuration utility</title>
+    <summary>HAVIT Magic Eagle HV-MS735 mouse configuration utility</summary>
+    <description>
+      HAVIT Magic Eagle mouse configuration utility (unofficial). Allows you to configure the buttons and profiles of your device.
+      See https://www.prohavit.com/products/hv-ms735-mmo-gaming-mouse/ for details.
+    </description>
+    <projectUrl>https://github.com/pbludov/hv-ms735-config/</projectUrl>
     <licenseUrl>https://github.com/pbludov/hv-ms735-config/blob/master/LICENSE</licenseUrl>
     <packageSourceUrl>https://github.com/pbludov/hv-ms735-config/</packageSourceUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <iconUrl>https://github.com/pbludov/hv-ms735-config/raw/master/res/hv-ms735-config.png</iconUrl>
-    <releaseNotes>USB report rate. Configurable delay for the neon illumination. More stable MacOS version.</releaseNotes>
+    <releaseNotes>
+      * Ability to change the USB report rate.
+      * Configurable delay for the neon illumination.
+      * More stable MacOS version.
+    </releaseNotes>
   </metadata>
   <files>
     <file src="chocolateyInstall.ps1" target="tools" />

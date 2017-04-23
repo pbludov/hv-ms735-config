@@ -20,7 +20,7 @@ or if you need some extra features that the official software does not provide.
 the device will be broken. To restore the device from the "brick" state
 follow the [instructions](doc/unbrick.md).
 
-* Magic Eagle is a registered trademark of [HAVIT Group](http://www.havit.hk/).
+* Magic Eagle is a registered trademark of [HAVIT Group](https://www.prohavit.com/).
 
 ## Installation
 ### Ubuntu

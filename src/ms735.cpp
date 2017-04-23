@@ -57,7 +57,6 @@ MS735::MS735(QObject *parent)
     , eventDevice(new QHIDDevice(VENDOR, PRODUCT, EVENT_USAGE_PAGE, EVENT_USAGE, this))
     , monitor(new QHIDMonitor(VENDOR, PRODUCT, this))
     , timerId(0)
-
 {
     connect(monitor, SIGNAL(deviceArrival(QString)), this, SLOT(deviceArrival(QString)));
     connect(monitor, SIGNAL(deviceRemove()), this, SLOT(deviceRemove()));

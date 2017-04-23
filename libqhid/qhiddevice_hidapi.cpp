@@ -241,17 +241,23 @@ static void resetDevice(int vendorId, int deviceId)
 }
 #endif
 
+static int hidapiUsed = 0;
+
 QHIDDevicePrivate::QHIDDevicePrivate(QHIDDevice *q_ptr, int vendorId, int deviceId, int usagePage, int usage)
     : device(nullptr)
     , vendorId(vendorId)
     , deviceId(deviceId)
     , q_ptr(q_ptr)
 {
-    if (hid_init() != 0)
+    // Make sure we call hid_init() only once.
+    if (hidapiUsed == 0 && hid_init() != 0)
     {
         qWarning() << "hid_init failed, error" << errno;
         return;
     }
+
+    // Increment hidapi library usage counter.
+    ++hidapiUsed;
 
     int interfaceNumber = -1;
 #ifdef WITH_LIBUSB_1_0
@@ -292,12 +298,18 @@ QHIDDevicePrivate::~QHIDDevicePrivate()
         device = nullptr;
 
 #ifdef WITH_LIBUSB_1_0
-        // Until reset the keyboard interface will be ignored by the kernel.
+        // Until reset the keyboard interface will be ignored by the kernel
+        // since the hidapi library does detach the kernel driver and does
+        // not re-attach it back.
         resetDevice(vendorId, deviceId);
 #endif
     }
 
-    hid_exit();
+    // Only the last one should call hid_exit(),
+    if (--hidapiUsed == 0)
+    {
+        hid_exit();
+    }
 }
 
 bool QHIDDevicePrivate::isValid() const

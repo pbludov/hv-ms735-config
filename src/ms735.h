@@ -49,6 +49,7 @@ class MS735 : public QObject
         CmdControl = 0x0C,
         CmdButtons = 0x0D,
         CmdMacro = 0x0F,
+        CmdVersion = 0x10, // 0x91 => 01 01, this may be 1.1 version.
         CmdFlagGet = 0x80,
         CmdPing = CmdBlink | CmdFlagGet,
         CmdGetProfile = CmdProfile | CmdFlagGet,

@@ -56,7 +56,7 @@ else {
   error("Need libudev or libusb-1.0 development package.")
 }
 
-contains(DEFINES, WITH_HIDAPI) || contains(DEFINES, WITH_HIDAPI_LIBUSB){
+contains(DEFINES, WITH_HIDAPI) || contains(DEFINES, WITH_HIDAPI_LIBUSB) {
   SOURCES += $$PWD/qhiddevice_hidapi.cpp
   HEADERS += $$PWD/qhiddevice_hidapi.h
 }

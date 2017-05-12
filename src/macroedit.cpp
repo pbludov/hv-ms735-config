@@ -32,9 +32,6 @@
 #include <QSpinBox>
 #include <QxtCheckComboBox>
 
-#define DEFAULT_KEY_DELAY 50
-#define DEFAULT_BUTTON_DELAY 0
-
 MacroEdit::MacroEdit(ActionType actionType, QWidget *parent)
     : QWidget(parent)
     , actionTypeValue(actionType)
@@ -102,7 +99,7 @@ MacroEdit::MacroEdit(ActionType actionType, QWidget *parent)
     spinDelay->setSuffix(tr("  msec"));
     spinDelay->setMaximum(6553599); // Almost 2 hour! OMG.
     spinDelay->setSingleStep(10);
-    spinDelay->setValue(actionType & ActionKey ? DEFAULT_KEY_DELAY : DEFAULT_BUTTON_DELAY);
+    spinDelay->setValue(10);
     layout->addWidget(spinDelay);
     layout->addStretch();
 

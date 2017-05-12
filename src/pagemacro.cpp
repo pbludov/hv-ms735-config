@@ -152,7 +152,7 @@ QByteArray PageMacro::macro() const
             macro.append(delay).append(value);
             break;
         case MacroEdit::ActionFlagDown | MacroEdit::ActionFlagUp:
-            macro.append(type & MacroEdit::ActionKey? 5: 0).append(value).append(delay | 0x80).append(value);
+            macro.append(1).append(value).append(delay | 0x80).append(value);
             break;
         case MacroEdit::ActionFlagUp:
             macro.append(delay | 0x80).append(value);
@@ -209,8 +209,7 @@ void PageMacro::setMacro(QByteArray& macro)
             type |= MacroEdit::ActionFlagUp;
             delay &= ~0x80;
         }
-        else if (macro.at(i+3) == (char)value && (0x80 & macro.at(i+2))
-                 && ((type == MacroEdit::ActionKey && delay == 5) || (type == MacroEdit::ActionButton && delay == 0)))
+        else if (macro.at(i+3) == (char)value && (0x80 & macro.at(i+2)) && delay == 1)
         {
             // Down, then up => key press / button click
             type |= MacroEdit::ActionFlagDown | MacroEdit::ActionFlagUp;

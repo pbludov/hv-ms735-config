@@ -1,0 +1,2 @@
+# HAVIT Magic Eagle mouse write access
+SUBSYSTEM=="usb", ATTRS{idVendor}=="04d9", ATTRS{idProduct}=="a100", MODE="0666"

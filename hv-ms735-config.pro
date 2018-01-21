@@ -1,6 +1,6 @@
 ###############################################################################
 #
-#      Copyright 2017 Pavel Bludov <pbludov@gmail.com>
+#      Copyright 2017-2018 Pavel Bludov <pbludov@gmail.com>
 #
 #      This program is free software; you can redistribute it and/or modify
 #      it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ include (libqhid/libqhid.pri)
 
 TEMPLATE = app
 TARGET   = hv-ms735-config
-VERSION  = 1.1.0
+VERSION  = 1.1.1
 
 DEFINES += PRODUCT_NAME=\\\"$$TARGET\\\" \
     PRODUCT_VERSION=\\\"$$VERSION\\\"
@@ -89,5 +89,7 @@ shortcut.files = hv-ms735-config.desktop
 shortcut.path = $$PREFIX/share/applications
 icon.files = res/hv-ms735-config.png
 icon.path = $$PREFIX/share/icons/hicolor/48x48/apps
+udev.files = 51-hv-ms735-mouse.rules
+udev.path = /etc/udev/rules.d
 
-INSTALLS += target man icon shortcut
+INSTALLS += target man icon shortcut udev

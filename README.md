@@ -92,5 +92,5 @@ as published by the Free Software Foundation; either version 2.1 of the License,
 or (at your option) any later version.  A copy of this license
 can be found in the file COPYING included with the source code of this program.
 
-&copy; 2017 Pavel Bludov <pbludov@gmail.com>
+&copy; 2017-2018 Pavel Bludov <pbludov@gmail.com>
 

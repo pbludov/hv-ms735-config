@@ -46,4 +46,3 @@ void ColorButton::click()
         setValue(value.rgba() & 0xFFFFFF);
     }
 }
-

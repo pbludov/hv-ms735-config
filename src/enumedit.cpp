@@ -74,14 +74,14 @@ int EnumEdit::value() const
     if (name.isEmpty())
         return 0;
 
-    auto lambda = [name] (const Item &i) { return name.compare(tr(i.name), Qt::CaseInsensitive) == 0; };
+    auto lambda = [name](const Item &i) { return name.compare(tr(i.name), Qt::CaseInsensitive) == 0; };
     auto item = std::find_if(items.cbegin(), items.cend(), lambda);
 
     if (item != items.cend())
-        return  item - items.cbegin();
+        return item - items.cbegin();
 
     // Not found by name, treat as a hex sequence.
-    return  name.replace(" ", "").toInt(nullptr, 16);
+    return name.replace(" ", "").toInt(nullptr, 16);
 }
 
 void EnumEdit::onDropDownAction()
@@ -112,7 +112,7 @@ void EnumEdit::prepareSubMenu()
     if (!subMenu->isEmpty())
         return;
 
-    auto lambda = [subMenu] (const Item &g) { return subMenu->title().compare(tr(g.name)) == 0; };
+    auto lambda = [subMenu](const Item &g) { return subMenu->title().compare(tr(g.name)) == 0; };
     auto group = std::find_if(groups.cbegin(), groups.cend(), lambda);
     if (group == groups.cend())
         return;

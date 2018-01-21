@@ -74,7 +74,7 @@ ButtonEdit::ButtonEdit(QString labelText, QWidget *parent)
     cbModifiers->addItem(tr("RAlt"), 0x40);
     cbModifiers->addItem(tr("RSuper"), 0x80);
     cbModifiers->setDefaultText(tr("None"));
-    cbModifiers->setMinimumWidth(measuredWidth*2);
+    cbModifiers->setMinimumWidth(measuredWidth * 2);
     layout->addWidget(cbModifiers);
 
     for (size_t i = 0; i < _countof(editScans); ++i)
@@ -151,10 +151,10 @@ void ButtonEdit::setValue(quint32 value)
     quint8 arg3 = value >> 24;
     setUpdatesEnabled(false);
     editCustom->setText(QString("%1 %2 %3 %4")
-                        .arg(arg3, 2, 16, QChar('0'))
-                        .arg(arg2, 2, 16, QChar('0'))
-                        .arg(arg1, 2, 16, QChar('0'))
-                        .arg(mode, 2, 16, QChar('0')));
+                            .arg(arg3, 2, 16, QChar('0'))
+                            .arg(arg2, 2, 16, QChar('0'))
+                            .arg(arg1, 2, 16, QChar('0'))
+                            .arg(mode, 2, 16, QChar('0')));
 
     // Actually, there is no 'Off' mode. It is mode 'key' with scan code 00
     if (value == 0)
@@ -174,7 +174,7 @@ void ButtonEdit::setValue(quint32 value)
         editScans[0]->setVisible(true);
         editScans[1]->setValue(arg3);
         editScans[1]->setVisible(true);
-    break;
+        break;
 
     case MS735::EventButton:
         cbButton->setValue(arg2);
@@ -201,7 +201,8 @@ void ButtonEdit::setValue(quint32 value)
         break;
 
     case MS735::EventSequence:
-        cbButton->setCurrentIndex(adjust(arg1, MS735::MouseLeftButton, MS735::WheelDownButton) - MS735::MouseLeftButton);
+        cbButton->setCurrentIndex(
+            adjust(arg1, MS735::MouseLeftButton, MS735::WheelDownButton) - MS735::MouseLeftButton);
         cbButton->setVisible(true);
         spinCount->setValue(arg3);
         spinCount->setVisible(true);
@@ -306,10 +307,10 @@ void ButtonEdit::onModeChanged(int idx)
     if (newMode == MS735::EventCustom)
     {
         editCustom->setText(QString("%1 %2 %3 %4")
-                            .arg(0xFF & value >> 24, 2, 16, QChar('0'))
-                            .arg(0xFF & value >> 16, 2, 16, QChar('0'))
-                            .arg(0xFF & value >> 8, 2, 16, QChar('0'))
-                            .arg(oldMode, 2, 16, QChar('0')));
+                                .arg(0xFF & value >> 24, 2, 16, QChar('0'))
+                                .arg(0xFF & value >> 16, 2, 16, QChar('0'))
+                                .arg(0xFF & value >> 8, 2, 16, QChar('0'))
+                                .arg(oldMode, 2, 16, QChar('0')));
         editCustom->show();
     }
     else if (newMode != MS735::EventOff)

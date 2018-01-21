@@ -144,7 +144,7 @@ void MacroEdit::setValue(int value)
 
 int MacroEdit::value() const
 {
-    return key? key->value(): button? button->value(): -1;
+    return key ? key->value() : button ? button->value() : -1;
 }
 
 void MacroEdit::setDelay(int value)
@@ -159,7 +159,7 @@ int MacroEdit::delay() const
 
 void MacroEdit::moveUp()
 {
-    auto parentLayout = static_cast<QBoxLayout*>(parentWidget()->layout());
+    auto parentLayout = static_cast<QBoxLayout *>(parentWidget()->layout());
     auto idx = parentLayout->indexOf(this);
 
     if (idx > 0)
@@ -171,7 +171,7 @@ void MacroEdit::moveUp()
 
 void MacroEdit::moveDown()
 {
-    auto parentLayout = static_cast<QBoxLayout*>(parentWidget()->layout());
+    auto parentLayout = static_cast<QBoxLayout *>(parentWidget()->layout());
     auto idx = parentLayout->indexOf(this);
 
     if (idx < parentLayout->count() - 3)

@@ -101,8 +101,7 @@ void PageMacro::selectMacro(QListWidgetItem *current, QListWidgetItem *previous)
         auto macro = mice->macro(macroIndex);
         if (macro.isNull())
         {
-            QMessageBox::warning(this, windowTitle(),
-                tr("Failed to load macro %1").arg(macroIndex, 3, 10, QChar('0')));
+            QMessageBox::warning(this, windowTitle(), tr("Failed to load macro %1").arg(macroIndex, 3, 10, QChar('0')));
 
             // Unselect macro to prevent data loss
             ui->cbAddAction->setFocus();
@@ -183,7 +182,7 @@ QByteArray PageMacro::macro() const
     return macro.append("\x0\x0", 2);
 }
 
-void PageMacro::setMacro(QByteArray& macro)
+void PageMacro::setMacro(QByteArray &macro)
 {
     // Add some zeros to not bother about boundaries
     macro.append("\x0\x0\x0\x0", 4);
@@ -192,8 +191,8 @@ void PageMacro::setMacro(QByteArray& macro)
 
     for (int i = 2; i < macro.length(); i += 2)
     {
-        int  delay = 0xFF & macro.at(i);
-        int  value = 0xFF & macro.at(i+1);
+        int delay = 0xFF & macro.at(i);
+        int value = 0xFF & macro.at(i + 1);
 
         if (value == 0)
         {
@@ -209,11 +208,11 @@ void PageMacro::setMacro(QByteArray& macro)
             type |= MacroEdit::ActionFlagUp;
             delay &= ~0x80;
         }
-        else if (macro.at(i+3) == (char)value && (0x80 & macro.at(i+2)) && delay == 1)
+        else if (macro.at(i + 3) == (char)value && (0x80 & macro.at(i + 2)) && delay == 1)
         {
             // Down, then up => key press / button click
             type |= MacroEdit::ActionFlagDown | MacroEdit::ActionFlagUp;
-            delay = 0x7F & macro.at(i+2);
+            delay = 0x7F & macro.at(i + 2);
             i += 2;
         }
         else
@@ -223,17 +222,17 @@ void PageMacro::setMacro(QByteArray& macro)
         }
 
         // Check for extended delay
-        if (macro.at(i+3) == EXTRA_DELAY)
+        if (macro.at(i + 3) == EXTRA_DELAY)
         {
             // Check for extended extended delay
-            if (macro.at(i+2) == 0)
+            if (macro.at(i + 2) == 0)
             {
-                delay += 100 * (macro.at(i+4) << 8 | macro.at(i+5));
+                delay += 100 * (macro.at(i + 4) << 8 | macro.at(i + 5));
                 i += 4;
             }
             else
             {
-                delay += 100 * macro.at(i+2);
+                delay += 100 * macro.at(i + 2);
                 i += 2;
             }
         }

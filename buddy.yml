@@ -1,0 +1,15 @@
+- pipeline: "Default"
+  trigger_mode: "ON_EVERY_PUSH"
+  ref_name: "master"
+  actions:
+  - action: "Execute: make"
+    type: "BUILD"
+    docker_image_name: "library/ubuntu"
+    docker_image_tag: "16.04"
+    execute_commands:
+    - "qmake hv-ms735-config.pro"
+    - "make clean install"
+    setup_commands:
+    - "apt update"
+    - "apt install -y debhelper qt5-default libqt5widgets5 libhidapi-dev libusb-1.0-0-dev fakeroot pkg-config"
+    trigger_condition: "ALWAYS"

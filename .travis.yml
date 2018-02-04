@@ -25,9 +25,9 @@ install:
  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew install pkg-config qt hidapi libusb; brew link qt --force; fi
 
 script:
-    - echo "Building for ${MKSPEC} in ${BUILD_MODE} mode..."
-    - mkdir build
-    - cd build
-    - qmake ../hv-ms735-config.pro -spec ${MKSPEC} CONFIG+=${BUILD_MODE}
-    - make
+ - echo "Building for ${MKSPEC} in ${BUILD_MODE} mode..."
+ - mkdir build
+ - cd build
+ - qmake ../hv-ms735-config.pro -spec ${MKSPEC} CONFIG+=${BUILD_MODE}
+ - make
 

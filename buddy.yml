@@ -1,4 +1,4 @@
-- pipeline: "Default"
+- pipeline: "Buddy"
   trigger_mode: "ON_EVERY_PUSH"
   ref_name: "master"
   actions:

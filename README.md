@@ -1,6 +1,6 @@
 # hv-ms735-config
 
-[![Buddy Pipeline](https://app.buddy.works/pbludov/hv-ms735-config/pipelines/pipeline/70567/badge.svg?token=bf26fe8fed990190f11227bb2aa0c7d1e71118737795eed7b5069fff7106a015)](https://app.buddy.works/pbludov/hv-ms735-config/pipelines/pipeline/70567)
+[![Buddy Pipeline](https://app.buddy.works/pbludov/hv-ms735-config/pipelines/pipeline/124170/badge.svg?token=bf26fe8fed990190f11227bb2aa0c7d1e71118737795eed7b5069fff7106a015)](https://app.buddy.works/pbludov/hv-ms735-config/pipelines/pipeline/124170)
 [![Build Status](https://api.travis-ci.org/pbludov/hv-ms735-config.svg?branch=master)](https://travis-ci.org/pbludov/hv-ms735-config)
 [![Build status](https://ci.appveyor.com/api/projects/status/c9xnl0k4vdi79mor?svg=true)](https://ci.appveyor.com/project/pbludov/hv-ms735-config)
 [![PPA](https://img.shields.io/badge/PPA-available-brightgreen.svg)](https://launchpad.net/~pbludov/+archive/ubuntu/ppa)

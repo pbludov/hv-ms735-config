@@ -1,10 +1,6 @@
-language: c++
+language: cpp
 sudo: required
 dist: trusty
-
-compiler:
- - clang
- - gcc
 
 os:
  - linux
@@ -15,14 +11,17 @@ env:
  - BUILD_MODE=debug
 
 install:
- - if [ "${TRAVIS_OS_NAME}" = "linux" -a "${CXX}" = "clang++" ]; then export MKSPEC=linux-clang; fi
- - if [ "${TRAVIS_OS_NAME}" = "linux" -a "${CXX}" = "g++" ]; then export MKSPEC=linux-g++; fi
-
- - if [ "${TRAVIS_OS_NAME}" = "osx" -a "${CXX}" = "clang++" ]; then export MKSPEC=macx-clang; fi
- - if [ "${TRAVIS_OS_NAME}" = "osx" -a "${CXX}" = "g++" ]; then export MKSPEC=macx-g++; fi
-
- - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then sudo apt-get install -y debhelper qt5-default libqt5widgets5 libhidapi-dev libusb-1.0-0-dev fakeroot; fi
- - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew install pkg-config qt hidapi libusb; brew link qt --force; fi
+ - |
+   if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
+     export MKSPEC=linux-g++
+     sudo apt-get install -y debhelper qt5-default libqt5widgets5 libhidapi-dev libusb-1.0-0-dev fakeroot
+   fi
+ - |
+   if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
+     export MKSPEC=macx-clang
+     brew install pkg-config qt hidapi libusb
+     brew link qt --force
+   fi
 
 script:
  - echo "Building for ${MKSPEC} in ${BUILD_MODE} mode..."
@@ -31,3 +30,7 @@ script:
  - qmake ../hv-ms735-config.pro -spec ${MKSPEC} CONFIG+=${BUILD_MODE}
  - make
 
+
+branches:
+  only:
+    - master

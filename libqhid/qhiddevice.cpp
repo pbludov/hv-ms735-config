@@ -61,7 +61,8 @@ int QHIDDevice::sendFeatureReport(const char *report, int length)
 {
     Q_D(QHIDDevice);
     auto ret = d->sendFeatureReport(report, length);
-    QThread::msleep(writeDelayValue);
+    if (writeDelayValue > 0)
+        QThread::msleep(ulong(writeDelayValue));
     return ret;
 }
 
@@ -86,7 +87,8 @@ int QHIDDevice::write(char report, const char *buffer, int length)
         if (written <= 0)
             return written;
 
-        QThread::msleep(writeDelayValue);
+        if (writeDelayValue > 0)
+            QThread::msleep(ulong(writeDelayValue));
         offset += written - 1;
         length -= written - 1;
     }
@@ -99,7 +101,7 @@ int QHIDDevice::read(char *buffer, int length)
     return read(buffer, length, readTimeoutValue);
 }
 
-int QHIDDevice::read(char *buffer, int length, unsigned int readTimeout)
+int QHIDDevice::read(char *buffer, int length, int readTimeout)
 {
     Q_D(QHIDDevice);
     int offset = 0;
@@ -118,22 +120,22 @@ int QHIDDevice::read(char *buffer, int length, unsigned int readTimeout)
     return offset;
 }
 
-unsigned int QHIDDevice::readTimeout() const
+int QHIDDevice::readTimeout() const
 {
-    return readTimeout();
+    return readTimeoutValue;
 }
 
-void QHIDDevice::setReadTimeout(unsigned int value)
+void QHIDDevice::setReadTimeout(int value)
 {
     readTimeoutValue = value;
 }
 
-unsigned int QHIDDevice::writeDelay() const
+int QHIDDevice::writeDelay() const
 {
     return writeDelayValue;
 }
 
-void QHIDDevice::setWriteDelay(unsigned int value)
+void QHIDDevice::setWriteDelay(int value)
 {
     writeDelayValue = value;
 }

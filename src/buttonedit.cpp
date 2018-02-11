@@ -145,10 +145,10 @@ ButtonEdit::ButtonEdit(QString labelText, QWidget *parent)
 
 void ButtonEdit::setValue(quint32 value)
 {
-    quint8 mode = value;
-    quint8 arg1 = value >> 8;
-    quint8 arg2 = value >> 16;
-    quint8 arg3 = value >> 24;
+    quint8 mode = 0xFF & value;
+    quint8 arg1 = 0xFF & (value >> 8);
+    quint8 arg2 = 0xFF & (value >> 16);
+    quint8 arg3 = 0xFF & (value >> 24);
     setUpdatesEnabled(false);
     editCustom->setText(QString("%1 %2 %3 %4")
                             .arg(arg3, 2, 16, QChar('0'))
@@ -236,20 +236,20 @@ quint32 ButtonEdit::value() const
     return extractValue(cbMode->currentData().toUInt());
 }
 
-quint32 ButtonEdit::extractValue(int mode) const
+quint32 ButtonEdit::extractValue(quint32 mode) const
 {
     quint8 arg1 = 0, arg2 = 0, arg3 = 0;
 
     switch (mode)
     {
     case MS735::EventKey:
-        arg1 = cbModifiers->mask();
-        arg2 = editScans[0]->value();
-        arg3 = editScans[1]->value();
+        arg1 = 0xFF & cbModifiers->mask();
+        arg2 = 0xFF & editScans[0]->value();
+        arg3 = 0xFF & editScans[1]->value();
         break;
 
     case MS735::EventButton:
-        arg2 = cbButton->value();
+        arg2 = 0xFF & cbButton->value();
         break;
 
     case MS735::EventCommand:
@@ -261,18 +261,18 @@ quint32 ButtonEdit::extractValue(int mode) const
     break;
 
     case MS735::EventProfile:
-        arg2 = cbProfile->currentIndex() + MS735::NextProfile;
+        arg2 = 0xFF & (cbProfile->currentIndex() + MS735::NextProfile);
         break;
 
     case MS735::EventMacro:
-        arg2 = spinMacroIndex->value();
-        arg1 = cbRepeatMode->currentIndex();
+        arg2 = 0xFF & spinMacroIndex->value();
+        arg1 = 0xFF & cbRepeatMode->currentIndex();
         break;
 
     case MS735::EventSequence:
-        arg1 = cbButton->currentIndex() + MS735::MouseLeftButton;
-        arg3 = spinCount->value();
-        arg2 = spinDelay->value();
+        arg1 = 0xFF & (cbButton->currentIndex() + MS735::MouseLeftButton);
+        arg3 = 0xFF & spinCount->value();
+        arg2 = 0xFF & spinDelay->value();
         break;
 
     case MS735::EventOff:

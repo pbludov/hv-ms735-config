@@ -247,7 +247,7 @@ int QHIDDevicePrivate::read(char *buffer, int length, unsigned int timeout)
         }
 
         length = qMin((int)read, length);
-        memcpy(buffer, begin, length);
+        memcpy(buffer, begin, size_t(length));
         return length;
     }
 

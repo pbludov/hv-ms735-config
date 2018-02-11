@@ -180,9 +180,9 @@ char *MS735::readPage(Command page, int idx)
 bool MS735::writePage(const char *data, Command page, int idx)
 {
     QByteArray cmd(9, '\x0');
-    cmd[1] = page;
-    cmd[2] = idx;
-    cmd[3] = PAGE_SIZE;
+    cmd[1] = (char)page;
+    cmd[2] = (char)idx;
+    cmd[3] = (char)PAGE_SIZE;
     cmd[8] = crc(cmd);
 
     qCDebug(UsbIo) << "send" << cmd.toHex();
@@ -242,10 +242,10 @@ void MS735::setMacro(int index, const QByteArray &value)
     auto page = readPage(CmdMacro, index);
     auto length = qMin(PAGE_SIZE, value.length());
 
-    if (page && memcmp(page, value.cbegin(), length))
+    if (page && memcmp(page, value.cbegin(), size_t(length)))
     {
-        memcpy(page, value.cbegin(), length);
-        memset(page + length, 0, PAGE_SIZE - length);
+        memcpy(page, value.cbegin(), size_t(length));
+        memset(page + length, 0, PAGE_SIZE - size_t(length));
         dirtyPages[index << 8 | CmdMacro] = true;
     }
 }
@@ -264,7 +264,7 @@ void MS735::writeByte(Command page, RegisterOffset offset, int value)
         if ((0xFF & bytes[offset]) != (0xFF & value))
         {
             dirtyPages[page] = true;
-            bytes[offset] = value;
+            bytes[offset] = (char)value;
         }
     }
 }
@@ -290,9 +290,9 @@ void MS735::writeColor(RegisterOffset offset, int index, int value)
         if ((0xFF & bytes[0]) != qRed(value) || (0xFF & bytes[1]) != qGreen(value) || (0xFF & bytes[2]) != qBlue(value))
         {
             dirtyPages[CmdControl] = true;
-            bytes[0] = qRed(value);
-            bytes[1] = qGreen(value);
-            bytes[2] = qBlue(value);
+            bytes[0] = (char)qRed(value);
+            bytes[1] = (char)qGreen(value);
+            bytes[2] = (char)qBlue(value);
         }
     }
 }
@@ -307,7 +307,7 @@ void MS735::setReportRateDivider(int value)
 {
     Q_ASSERT(value >= MinReportRateDivider && value <= MaxReportRateDivider);
 
-    report(CmdReportRateDivider, 0, value);
+    report(CmdReportRateDivider, 0, (char)value);
 }
 
 int MS735::profile()
@@ -320,7 +320,7 @@ void MS735::setProfile(int value)
 {
     Q_ASSERT(value > 0 && value <= MaxProfiles);
 
-    report(CmdProfile, 0, value);
+    report(CmdProfile, 0, (char)value);
 }
 
 int MS735::numProfiles()

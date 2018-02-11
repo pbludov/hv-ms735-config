@@ -38,7 +38,7 @@ int testKeys(MS735 &mice)
     int macroIndex = 0;
     for (int i = 4; i < MS735::MouseLeftButton; ++i)
     {
-        macro.append(5).append(i).append(0x85).append(i);
+        macro.append(5).append(i).append('\x85').append(i);
 
         if ((i % 30) == 0)
         {

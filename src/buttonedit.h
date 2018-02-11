@@ -44,7 +44,7 @@ public slots:
     void onModeChanged(int idx);
 
 private:
-    quint32 extractValue(int mode) const;
+    quint32 extractValue(quint32 mode) const;
     void hideWidgets();
 
     QLabel *label;

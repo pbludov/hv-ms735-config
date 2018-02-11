@@ -28,7 +28,7 @@ class QHIDMonitorPrivate : public QObject
     int deviceId;
 
     Q_OBJECT
-    Q_DECLARE_PUBLIC(QHIDMonitor);
+    Q_DECLARE_PUBLIC(QHIDMonitor)
 
 public:
     QHIDMonitorPrivate(QHIDMonitor *q_ptr, int vendorId, int deviceId);

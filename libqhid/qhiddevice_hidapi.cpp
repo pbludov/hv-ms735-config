@@ -319,20 +319,20 @@ bool QHIDDevicePrivate::isValid() const
 
 int QHIDDevicePrivate::sendFeatureReport(const char *buffer, int length)
 {
-    return device == nullptr ? -1 : hid_send_feature_report(device, (const unsigned char *)buffer, length);
+    return device == nullptr ? -1 : hid_send_feature_report(device, (const unsigned char *)buffer, size_t(length));
 }
 
 int QHIDDevicePrivate::getFeatureReport(char *buffer, int length)
 {
-    return device == nullptr ? -1 : hid_get_feature_report(device, (unsigned char *)buffer, length);
+    return device == nullptr ? -1 : hid_get_feature_report(device, (unsigned char *)buffer, size_t(length));
 }
 
 int QHIDDevicePrivate::write(const char *buffer, int length)
 {
-    return device == nullptr ? -1 : hid_write(device, (const unsigned char *)buffer, length);
+    return device == nullptr ? -1 : hid_write(device, (const unsigned char *)buffer, size_t(length));
 }
 
 int QHIDDevicePrivate::read(char *buffer, int length, int timeout)
 {
-    return device == nullptr ? -1 : hid_read_timeout(device, (unsigned char *)buffer, length, timeout);
+    return device == nullptr ? -1 : hid_read_timeout(device, (unsigned char *)buffer, size_t(length), timeout);
 }

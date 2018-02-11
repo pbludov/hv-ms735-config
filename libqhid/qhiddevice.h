@@ -42,19 +42,19 @@ public:
 
     int write(char report, const char *buffer, int length);
     int read(char *buffer, int length);
-    int read(char *buffer, int length, unsigned int timeout);
+    int read(char *buffer, int length, int timeout);
 
-    unsigned int readTimeout() const;
-    void setReadTimeout(unsigned int value);
+    int readTimeout() const;
+    void setReadTimeout(int value);
 
-    unsigned int writeDelay() const;
-    void setWriteDelay(unsigned int value);
+    int writeDelay() const;
+    void setWriteDelay(int value);
 
 protected:
     int inputBufferLength;
     int outputBufferLength;
-    unsigned int writeDelayValue;
-    unsigned int readTimeoutValue;
+    int writeDelayValue;
+    int readTimeoutValue;
     class QHIDDevicePrivate *d_ptr;
 };
 

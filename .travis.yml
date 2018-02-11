@@ -1,6 +1,16 @@
 language: cpp
-sudo: required
+sudo: false
 dist: trusty
+
+addons:
+  apt:
+    packages:
+      - debhelper
+      - fakeroot
+      - libhidapi-dev
+      - libqt5widgets5
+      - libusb-1.0-0-dev
+      - qt5-default
 
 os:
  - linux
@@ -14,8 +24,8 @@ install:
  - |
    if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
      export MKSPEC=linux-g++
-     sudo apt-get install -y debhelper qt5-default libqt5widgets5 libhidapi-dev libusb-1.0-0-dev fakeroot
    fi
+
  - |
    if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
      export MKSPEC=macx-clang
@@ -34,3 +44,8 @@ script:
 branches:
   only:
     - master
+
+cache:
+  apt: true
+  directories:
+    - $HOME/Library/Caches/Homebrew

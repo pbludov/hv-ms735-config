@@ -17,6 +17,9 @@
 #      51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 ###############################################################################
+lessThan(QT_MAJOR_VERSION, 5) \
+    | equals(QT_MAJOR_VERSION, 5) : lessThan(QT_MINOR_VERSION, 2) \
+        : error (QT 5.2 or newer is required)
 
 isEmpty(PREFIX): PREFIX   = /usr
 DEFINES += PREFIX=$$PREFIX

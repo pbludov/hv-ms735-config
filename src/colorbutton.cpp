@@ -34,7 +34,9 @@ int ColorButton::value() const
 
 void ColorButton::setValue(int value)
 {
-    setStyleSheet(QString("background-color: #%1").arg(value, 6, 16, QChar('0')));
+    QPixmap px(128, 128);
+    px.fill(QColor(value));
+    setIcon(px);
     color = value;
 }
 

@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
     app.setWindowIcon(QIcon(":/app/icon"));
 
     QCommandLineParser parser;
-    parser.setApplicationDescription(tr("HV MS375 configuration application"));
+    parser.setApplicationDescription(tr("HV MS735 configuration application"));
     parser.addHelpOption();
     parser.addVersionOption();
 

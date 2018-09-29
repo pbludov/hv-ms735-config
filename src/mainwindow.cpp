@@ -65,7 +65,6 @@ void MainWindow::updateMice()
     foreach (auto edit, findChildren<ButtonEdit *>())
     {
         mice->setButton((MS735::ButtonIndex)edit->property("ButtonIndex").toInt(), edit->value());
-        mice->setButton((MS735::ButtonIndex)edit->property("ButtonIndex").toInt(), edit->value());
     }
 
     foreach (auto widget, findChildren<MiceWidget *>())
@@ -127,7 +126,7 @@ std::pair<QString, MS735::ButtonIndex> mainButtons[] =
     {QCoreApplication::translate("button", "W&heel Right"),  MS735::WheelRight},
     {QCoreApplication::translate("button", "Wh&eel Up"),     MS735::WheelUp},
     {QCoreApplication::translate("button", "Whee&l Down"),   MS735::WheelDown},
-    {QCoreApplication::translate("button", "Wheel &Click"),  MS735::WheelCick},
+    {QCoreApplication::translate("button", "Wheel &Click"),  MS735::WheelClick},
 }, sideButtons[] =
 {
     {QCoreApplication::translate("button", "Side Button &1"),  MS735::SideButton1},

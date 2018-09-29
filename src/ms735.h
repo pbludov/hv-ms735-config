@@ -122,7 +122,7 @@ public:
         // Main buttons
         ButtonLeft,
         ButtonRight,
-        WheelCick,
+        WheelClick,
         ButtonUp,
         ButtonDown,
         WheelLeft,
@@ -180,7 +180,7 @@ public:
     {
         NextProfile = 1,
         PreviousProfile,
-        // Same as next, but wpars at maximum
+        // Same as next, but wraps at maximum
         CycleProfile,
     };
 

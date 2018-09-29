@@ -187,7 +187,7 @@ void PageMacro::setMacro(QByteArray &macro)
     // Add some zeros to not bother about boundaries
     macro.append("\x0\x0\x0\x0", 4);
 
-    ui->repeat->setValue(macro.at(0) << 8 | macro.at(1));
+    ui->repeat->setValue((quint8)macro.at(0) << 8 | (quint8)macro.at(1));
 
     for (int i = 2; i < macro.length(); i += 2)
     {

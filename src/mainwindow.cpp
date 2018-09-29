@@ -29,6 +29,7 @@
 #include <qxtglobal.h>
 #include <QCloseEvent>
 #include <QMessageBox>
+#include <QStyle>
 
 static void initAction(QAction *action, QStyle::StandardPixmap icon, QKeySequence::StandardKey key)
 {

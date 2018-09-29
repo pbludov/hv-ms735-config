@@ -30,6 +30,7 @@
 #include <QMenu>
 #include <QPushButton>
 #include <QSpinBox>
+#include <QStyle>
 #include <QxtCheckComboBox>
 
 MacroEdit::MacroEdit(ActionType actionType, QWidget *parent)
